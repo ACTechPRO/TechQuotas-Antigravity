@@ -1,0 +1,107 @@
+{
+  "name": "techquotas-antigravity",
+  "displayName": "TechQuotas Antigravity",
+  "description": "Advanced quota monitoring with visual gauges for Antigravity IDE by AC Tech",
+  "version": "1.0.0",
+  "publisher": "ac-tech-pro",
+  "icon": "assets/logo.png",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:techquotas.refresh",
+    "onCommand:techquotas.show_menu",
+    "onCommand:techquotas.activate",
+    "onCommand:techquotas.reconnect",
+    "onCommand:techquotas.show_logs"
+  ],
+  "main": "./export/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "techquotas.refresh",
+        "title": "TechQuotas: Refresh Now"
+      },
+      {
+        "command": "techquotas.reconnect",
+        "title": "TechQuotas: Reconnect"
+      },
+      {
+        "command": "techquotas.show_logs",
+        "title": "TechQuotas: Show Debug Log"
+      }
+    ],
+    "configuration": {
+      "title": "TechQuotas Antigravity",
+      "properties": {
+        "techquotas.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable auto monitoring",
+          "order": 1
+        },
+        "techquotas.pollingInterval": {
+          "type": "number",
+          "default": 120,
+          "minimum": 30,
+          "description": "Polling interval in seconds (minimum: 30s, recommended: 120s+)",
+          "order": 2
+        },
+        "techquotas.pinnedModels": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Model IDs to display in the status bar. If empty, shows summary.",
+          "order": 3
+        },
+        "techquotas.showPromptCredits": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show prompt credits in the status bar.",
+          "order": 4
+        },
+        "techquotas.showGauges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show visual gauge icons for each model.",
+          "order": 5
+        }
+      }
+    }
+  },
+  "scripts": {
+    "node:vsix:package": "npm run compile && npx vsce package",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/vsce": "3.7.1",
+    "eslint": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ac-tech-pro/TechQuotas-Antigravity.git"
+  },
+  "keywords": [
+    "antigravity",
+    "quota",
+    "ai",
+    "techquotas",
+    "ac-tech"
+  ],
+  "author": "AC Tech (Original: Henrik Mertens)",
+  "license": "MIT"
+}
