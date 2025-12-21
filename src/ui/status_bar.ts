@@ -169,7 +169,8 @@ class StatusBarGroupRender {
 		// Text item (Lower priority to appear on right of icon)
 		this.textItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority - 0.1);
 
-		this.iconItem.command = 'techquotas.show_menu';
+		// Only the text item is clickable
+		// Icon is now static visual
 		this.textItem.command = 'techquotas.show_menu';
 	}
 
