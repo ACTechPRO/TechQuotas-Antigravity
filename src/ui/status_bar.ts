@@ -1,6 +1,6 @@
 /**
  * TechQuotas Antigravity - Status Bar UI Manager
- * Enhanced visual indicators with colored balls for per-model quota monitoring
+ * Enhanced visual indicators with colored balls (icons) and standard white text
  */
 
 import * as vscode from 'vscode';
@@ -17,50 +17,32 @@ const MODEL_ABBREVIATIONS: Record<string, string> = {
 	'GPT-OSS 120B (Medium)': 'GPT',
 };
 
-/**
- * Get colored ball icon based on remaining percentage
- * Uses VS Code codicons for consistent shape
- */
+/** Get colored ball icon based on remaining percentage */
 function get_status_ball(percentage: number): string {
 	return '$(circle-large-filled)';
 }
 
-/**
- * Get color hex code for status
- */
+/** Get color hex code for status */
 function get_status_color_hex(percentage: number): string {
 	if (percentage <= 20) return '#f14c4c'; // Red
 	if (percentage <= 50) return '#dcdcaa'; // Yellow
 	return '#4ec9b0'; // Green
 }
 
-/**
- * Get VS Code theme color for background
- */
-function get_quota_color(percentage: number | undefined): vscode.ThemeColor | undefined {
-	if (percentage === undefined) return undefined;
-	if (percentage <= 20) return new vscode.ThemeColor('statusBarItem.errorBackground');
-	if (percentage <= 50) return new vscode.ThemeColor('statusBarItem.warningBackground');
-	return undefined;
+/** Draw progress bar for tooltip */
+function draw_progress_bar(percentage: number): string {
+	const total = 10;
+	const filled = Math.round((percentage / 100) * total);
+	const empty = total - filled;
+	return '▓'.repeat(filled) + '░'.repeat(empty);
 }
 
-/** Get short abbreviation for a model label */
-function get_abbreviation(label: string): string {
-	if (MODEL_ABBREVIATIONS[label]) {
-		return MODEL_ABBREVIATIONS[label];
-	}
-	// Fallback: first word only
-	const words = label.split(/[\s\-_()]+/).filter(Boolean);
-	return words[0]?.slice(0, 8) ?? 'Model';
-}
-
-/** Format time for status bar display (format like "01:10h" or "45m") */
+/** Format time for status bar display */
 function format_short_time(ms: number): string {
 	if (ms <= 0) return 'now';
 	const totalMins = Math.ceil(ms / 60000);
 
 	if (totalMins < 60) {
-		// Under 1 hour: show minutes only
 		return `${totalMins}m`;
 	}
 
@@ -68,24 +50,16 @@ function format_short_time(ms: number): string {
 	const mins = totalMins % 60;
 
 	if (hours < 24) {
-		// Format as HH:MMh (e.g., "01:10h" or "4:30h")
 		const hh = hours.toString().padStart(2, '0');
 		const mm = mins.toString().padStart(2, '0');
 		return `${hh}:${mm}h`;
 	}
 
-	// More than 24 hours: show days
 	const days = Math.floor(hours / 24);
 	return `${days}d`;
 }
 
-/**
- * Group models for display:
- * - All Anthropic (Claude/Opus) models → single "Anthropic" entry (lowest remaining %)
- * - Gemini 3 Pro High + Low → single "Gemini Pro" entry (lowest remaining %)
- * - Gemini 3 Flash → individual
- * - Other models → individual
- */
+/** Group definition */
 interface grouped_model {
 	group_id: string;
 	display_name: string;
@@ -96,6 +70,34 @@ interface grouped_model {
 	source_models: model_quota_info[];
 }
 
+/** Build tooltips */
+function build_group_tooltip(group: grouped_model): string {
+	const pct = group.remaining_percentage;
+	const bar = draw_progress_bar(pct);
+	const ball = get_status_ball(pct);
+	const status = group.is_exhausted ? 'Exhausted' : pct < 20 ? 'Low' : pct < 50 ? 'Warning' : 'Available';
+
+	const lines = [
+		`${group.display_name}`,
+		`━━━━━━━━━━━━━━━━━━━━`,
+		`${bar} ${pct.toFixed(1)}%`,
+		`Status: ${ball} ${status}`,
+		`Resets: ${group.time_until_reset_formatted}`,
+	];
+
+	if (group.source_models.length > 1) {
+		lines.push('', '📋 Models in group:');
+		for (const m of group.source_models) {
+			const mPct = m.remaining_percentage ?? 0;
+			const mBall = get_status_ball(mPct);
+			lines.push(`  ${mBall} ${m.label}: ${mPct.toFixed(0)}%`);
+		}
+	}
+
+	return lines.join('\n');
+}
+
+/** Helper to group models */
 function group_models(models: model_quota_info[]): grouped_model[] {
 	const groups: Map<string, model_quota_info[]> = new Map();
 
@@ -110,7 +112,6 @@ function group_models(models: model_quota_info[]): grouped_model[] {
 		} else if (label.includes('gemini') && label.includes('flash')) {
 			group_id = 'gemini_flash';
 		} else {
-			// Individual model
 			group_id = m.model_id;
 		}
 
@@ -123,7 +124,6 @@ function group_models(models: model_quota_info[]): grouped_model[] {
 	const result: grouped_model[] = [];
 
 	for (const [group_id, group_models] of groups) {
-		// Use the lowest remaining percentage in the group
 		const lowest = group_models.reduce((min, m) =>
 			(m.remaining_percentage ?? 100) < (min.remaining_percentage ?? 100) ? m : min
 		);
@@ -136,7 +136,8 @@ function group_models(models: model_quota_info[]): grouped_model[] {
 		} else if (group_id === 'gemini_flash') {
 			display_name = 'Gemini Flash';
 		} else {
-			display_name = get_abbreviation(lowest.label);
+			const words = lowest.label.split(/[\s\-_()]+/).filter(Boolean);
+			display_name = MODEL_ABBREVIATIONS[lowest.label] || (words[0]?.slice(0, 8) ?? 'Model');
 		}
 
 		result.push({
@@ -153,10 +154,61 @@ function group_models(models: model_quota_info[]): grouped_model[] {
 	return result.sort((a, b) => a.remaining_percentage - b.remaining_percentage);
 }
 
+/**
+ * Manages a single group's display in the status bar.
+ * Uses TWO items to separate colored icon from white text.
+ */
+class StatusBarGroupRender {
+	private iconItem: vscode.StatusBarItem;
+	private textItem: vscode.StatusBarItem;
+
+	constructor(priority: number) {
+		// Icon item (Higher priority to appear on left)
+		this.iconItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority);
+
+		// Text item (Lower priority to appear on right of icon)
+		this.textItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority - 0.1);
+
+		this.iconItem.command = 'techquotas.show_menu';
+		this.textItem.command = 'techquotas.show_menu';
+	}
+
+	update(group: grouped_model) {
+		const pct = group.remaining_percentage;
+		const resetTime = format_short_time(group.time_until_reset_ms);
+		const tooltip = build_group_tooltip(group);
+
+		// Icon: Colored ball
+		this.iconItem.text = `$(circle-large-filled)`;
+		this.iconItem.color = get_status_color_hex(pct);
+		this.iconItem.tooltip = tooltip;
+		this.iconItem.backgroundColor = undefined;
+
+		// Text: White text (standard)
+		// Added a thin space or normal space for padding
+		this.textItem.text = `${group.display_name} ${Math.round(pct)}% (${resetTime})`;
+		this.textItem.color = undefined; // Uses theme default (white/light)
+		this.textItem.tooltip = tooltip;
+		this.textItem.backgroundColor = undefined;
+
+		this.iconItem.show();
+		this.textItem.show();
+	}
+
+	hide() {
+		this.iconItem.hide();
+		this.textItem.hide();
+	}
+
+	dispose() {
+		this.iconItem.dispose();
+		this.textItem.dispose();
+	}
+}
 
 export class StatusBarManager {
 	private main_item: vscode.StatusBarItem;
-	private model_items: Map<string, vscode.StatusBarItem> = new Map();
+	private group_renders: Map<string, StatusBarGroupRender> = new Map();
 	private last_snapshot: quota_snapshot | undefined;
 
 	constructor() {
@@ -171,7 +223,7 @@ export class StatusBarManager {
 		this.main_item.text = '$(sync~spin) TQ';
 		this.main_item.tooltip = 'TechQuotas: Connecting to Antigravity...';
 		this.main_item.show();
-		this.model_items.forEach(item => item.hide());
+		this.group_renders.forEach(r => r.hide());
 	}
 
 	show_error(msg: string) {
@@ -179,7 +231,7 @@ export class StatusBarManager {
 		this.main_item.tooltip = `TechQuotas Error: ${msg}`;
 		this.main_item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
 		this.main_item.show();
-		this.model_items.forEach(item => item.hide());
+		this.group_renders.forEach(r => r.hide());
 	}
 
 	update(snapshot: quota_snapshot, show_credits: boolean) {
@@ -190,21 +242,17 @@ export class StatusBarManager {
 		const pinned = this.get_pinned_models();
 		const customOrder = this.get_group_order();
 
-		// Group models for display (Anthropic together, Gemini Pro together, etc.)
 		let grouped = group_models(snapshot.models);
 
-		// If user has pinned specific groups, filter to only show those
 		if (pinned.length > 0) {
 			grouped = grouped.filter(g => pinned.includes(g.group_id));
 		}
 
-		// Apply custom order if specified, otherwise sort by remaining percentage
+		// Apply custom order if specified
 		if (customOrder.length > 0) {
 			grouped = grouped.sort((a, b) => {
 				const aIndex = customOrder.indexOf(a.group_id);
 				const bIndex = customOrder.indexOf(b.group_id);
-				// Items in customOrder come first, in their specified order
-				// Items not in customOrder are sorted to the end by percentage
 				if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
 				if (aIndex >= 0) return -1;
 				if (bIndex >= 0) return 1;
@@ -213,103 +261,60 @@ export class StatusBarManager {
 		}
 
 		if (show_gauges && grouped.length > 0) {
-			// Show grouped items with colored balls
 			this.main_item.text = '$(rocket)';
 			this.main_item.tooltip = 'TechQuotas Antigravity - Click for details';
 
 			const active_ids = new Set<string>();
+			// Start priority at 99. Each group takes ~1 priority slot (handled by fractional steps in Render class)
+			// But since we use P and P-0.1, we should space groups by at least 1.
 			let priority = 99;
 
 			for (const group of grouped) {
 				active_ids.add(group.group_id);
-				let item = this.model_items.get(group.group_id);
+				let render = this.group_renders.get(group.group_id);
 
-				if (!item) {
-					item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority);
-					item.command = 'techquotas.show_menu';
-					this.model_items.set(group.group_id, item);
+				if (!render) {
+					render = new StatusBarGroupRender(priority);
+					this.group_renders.set(group.group_id, render);
 				}
 
-				const pct = group.remaining_percentage;
-				const ball = get_status_ball(pct);
-				const resetTime = format_short_time(group.time_until_reset_ms);
-
-				// Format: $(circle-large-filled) Anthropic 75% (2h)
-				item.text = `${ball} ${group.display_name} ${Math.round(pct)}% (${resetTime})`;
-				item.tooltip = this.build_group_tooltip(group);
-				item.color = get_status_color_hex(pct);
-				item.backgroundColor = undefined;
-				item.show();
-
-				priority--;
+				render.update(group);
+				priority -= 1; // Decrement by 1 ensures groups don't overlap in priority
 			}
 
 			// Hide items for groups no longer displayed
-			this.model_items.forEach((item, id) => {
+			this.group_renders.forEach((render, id) => {
 				if (!active_ids.has(id)) {
-					item.hide();
+					render.hide();
 				}
 			});
 		} else {
 			// Compact mode - show lowest group
-			const lowest = grouped[0]; // Already sorted by lowest first
+			const lowest = grouped[0];
 
 			if (lowest) {
 				const pct = lowest.remaining_percentage;
 				const ball = get_status_ball(pct);
+				// In compact mode (single item), we typically have to sacrifice multi-color text
+				// UNLESS we use the same split logic. But main_item is single.
+				// We'll keep main_item simple: colored icon + white text is NOT possible in one item.
+				// But we can set color to undefined (white) and allow icon to be white too, OR color it all.
+				// Compromise: in compact mode, color the whole thing OR white. 
+				// User wants white text. We will set color=undefined for Compact mode.
+				// Wait, if it's compact, it's just one TQ item.
 				this.main_item.text = `${ball} TQ ${Math.round(pct)}%`;
-				this.main_item.color = get_status_color_hex(pct);
+				this.main_item.color = undefined; // All white for compact mode to be safe
 				this.main_item.backgroundColor = undefined;
 			} else {
 				this.main_item.text = '$(rocket) TQ';
 			}
+
+			this.group_renders.forEach(r => r.hide());
 		}
 
 		if (!show_gauges) {
-			this.model_items.forEach(item => item.hide());
+			this.group_renders.forEach(r => r.hide());
 		}
-	}
-
-	private build_model_tooltip(model: model_quota_info): string {
-		const pct = model.remaining_percentage ?? 0;
-		const bar = this.draw_progress_bar(pct);
-		const ball = get_status_ball(pct);
-
-		return [
-			`${model.label}`,
-			`━━━━━━━━━━━━━━━━━━━━`,
-			`${bar} ${pct.toFixed(1)}%`,
-			``,
-			`Status: ${ball} ${model.is_exhausted ? 'Exhausted' : pct < 20 ? 'Low' : pct < 50 ? 'Warning' : 'Available'}`,
-			`Resets: ${model.time_until_reset_formatted}`,
-		].join('\n');
-	}
-
-	private build_group_tooltip(group: grouped_model): string {
-		const pct = group.remaining_percentage;
-		const bar = this.draw_progress_bar(pct);
-		const ball = get_status_ball(pct);
-		const status = group.is_exhausted ? 'Exhausted' : pct < 20 ? 'Low' : pct < 50 ? 'Warning' : 'Available';
-
-		const lines = [
-			`${group.display_name}`,
-			`━━━━━━━━━━━━━━━━━━━━`,
-			`${bar} ${pct.toFixed(1)}%`,
-			`Status: ${ball} ${status}`,
-			`Resets: ${group.time_until_reset_formatted}`,
-		];
-
-		// Show individual models in the group
-		if (group.source_models.length > 1) {
-			lines.push('', '📋 Models in group:');
-			for (const m of group.source_models) {
-				const mPct = m.remaining_percentage ?? 0;
-				const mBall = get_status_ball(mPct);
-				lines.push(`  ${mBall} ${m.label}: ${mPct.toFixed(0)}%`);
-			}
-		}
-
-		return lines.join('\n');
 	}
 
 	show_menu() {
@@ -364,26 +369,6 @@ export class StatusBarManager {
 		pick.show();
 	}
 
-	private get_pinned_models(): string[] {
-		const config = vscode.workspace.getConfiguration('techquotas');
-		return config.get<string[]>('pinnedModels') || [];
-	}
-
-	private get_show_gauges(): boolean {
-		const config = vscode.workspace.getConfiguration('techquotas');
-		return config.get<boolean>('showGauges', true);
-	}
-
-	private get_group_order(): string[] {
-		const config = vscode.workspace.getConfiguration('techquotas');
-		return config.get<string[]>('groupOrder') || [];
-	}
-
-	private async set_group_order(order: string[]): Promise<void> {
-		const config = vscode.workspace.getConfiguration('techquotas');
-		await config.update('groupOrder', order, vscode.ConfigurationTarget.Global);
-	}
-
 	private async toggle_pinned_group(group_id: string): Promise<void> {
 		const config = vscode.workspace.getConfiguration('techquotas');
 		const pinned = [...(config.get<string[]>('pinnedModels') || [])];
@@ -411,7 +396,7 @@ export class StatusBarManager {
 			for (const g of grouped) {
 				const pct = g.remaining_percentage;
 				const ball = get_status_ball(pct);
-				const bar = this.draw_progress_bar(pct);
+				const bar = draw_progress_bar(pct);
 				const is_pinned = pinned.includes(g.group_id);
 
 				const pin_icon = is_pinned ? '📌' : '  ';
@@ -433,7 +418,6 @@ export class StatusBarManager {
 			});
 		}
 
-		// Actions section
 		items.push({ label: '', kind: vscode.QuickPickItemKind.Separator });
 		items.push({ label: '⚡ Actions', kind: vscode.QuickPickItemKind.Separator });
 
@@ -461,16 +445,24 @@ export class StatusBarManager {
 		return items;
 	}
 
-	private draw_progress_bar(percentage: number): string {
-		const total = 10;
-		const filled = Math.round((percentage / 100) * total);
-		const empty = total - filled;
-		return '▓'.repeat(filled) + '░'.repeat(empty);
+	private get_pinned_models(): string[] {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		return config.get<string[]>('pinnedModels') || [];
+	}
+
+	private get_show_gauges(): boolean {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		return config.get<boolean>('showGauges', true);
+	}
+
+	private get_group_order(): string[] {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		return config.get<string[]>('groupOrder') || [];
 	}
 
 	dispose() {
 		this.main_item.dispose();
-		this.model_items.forEach(item => item.dispose());
-		this.model_items.clear();
+		this.group_renders.forEach(r => r.dispose());
+		this.group_renders.clear();
 	}
 }

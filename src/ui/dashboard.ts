@@ -674,6 +674,20 @@ export class DashboardPanel {
 						renderCards(currentData.groups);
 					}
 					break;
+				case 'updateOrder':
+					if (currentData && message.groupOrder) {
+						// Sort current groups based on new order
+						currentData.groups.sort((a, b) => {
+							const aIndex = message.groupOrder.indexOf(a.groupId);
+							const bIndex = message.groupOrder.indexOf(b.groupId);
+							if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
+							if (aIndex >= 0) return -1;
+							if (bIndex >= 0) return 1;
+							return 0;
+						});
+						renderCards(currentData.groups);
+					}
+					break;
 			}
 		});
 	</script>
