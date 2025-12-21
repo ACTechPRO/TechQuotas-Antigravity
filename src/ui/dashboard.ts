@@ -145,7 +145,21 @@ export class DashboardPanel {
 			});
 		}
 
-		return result.sort((a, b) => a.remainingPercentage - b.remainingPercentage);
+		const customOrder = this._getGroupOrder();
+
+		return result.sort((a, b) => {
+			// Apply custom order if specified
+			if (customOrder.length > 0) {
+				const aIndex = customOrder.indexOf(a.groupId);
+				const bIndex = customOrder.indexOf(b.groupId);
+				if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
+				if (aIndex >= 0) return -1;
+				if (bIndex >= 0) return 1;
+			}
+
+			// Fallback: sort by remaining percentage
+			return a.remainingPercentage - b.remainingPercentage;
+		});
 	}
 
 	private _getPinnedGroups(): string[] {

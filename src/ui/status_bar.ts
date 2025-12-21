@@ -19,12 +19,19 @@ const MODEL_ABBREVIATIONS: Record<string, string> = {
 
 /**
  * Get colored ball icon based on remaining percentage
- * 🟢 = Good (>50%), 🟡 = Warning (20-50%), 🔴 = Critical (<20%)
+ * Uses VS Code codicons for consistent shape
  */
 function get_status_ball(percentage: number): string {
-	if (percentage <= 20) return '🔴';
-	if (percentage <= 50) return '🟡';
-	return '🟢';
+	return '$(circle-large-filled)';
+}
+
+/**
+ * Get color hex code for status
+ */
+function get_status_color_hex(percentage: number): string {
+	if (percentage <= 20) return '#f14c4c'; // Red
+	if (percentage <= 50) return '#dcdcaa'; // Yellow
+	return '#4ec9b0'; // Green
 }
 
 /**
@@ -227,10 +234,11 @@ export class StatusBarManager {
 				const ball = get_status_ball(pct);
 				const resetTime = format_short_time(group.time_until_reset_ms);
 
-				// Format: 🟢 Anthropic 75% (2h)
+				// Format: $(circle-large-filled) Anthropic 75% (2h)
 				item.text = `${ball} ${group.display_name} ${Math.round(pct)}% (${resetTime})`;
 				item.tooltip = this.build_group_tooltip(group);
-				item.backgroundColor = get_quota_color(pct);
+				item.color = get_status_color_hex(pct);
+				item.backgroundColor = undefined;
 				item.show();
 
 				priority--;
@@ -250,16 +258,16 @@ export class StatusBarManager {
 				const pct = lowest.remaining_percentage;
 				const ball = get_status_ball(pct);
 				this.main_item.text = `${ball} TQ ${Math.round(pct)}%`;
-				this.main_item.backgroundColor = get_quota_color(pct);
+				this.main_item.color = get_status_color_hex(pct);
+				this.main_item.backgroundColor = undefined;
 			} else {
 				this.main_item.text = '$(rocket) TQ';
 			}
-
-			this.model_items.forEach(item => item.hide());
 		}
 
-
-		this.main_item.show();
+		if (!show_gauges) {
+			this.model_items.forEach(item => item.hide());
+		}
 	}
 
 	private build_model_tooltip(model: model_quota_info): string {
