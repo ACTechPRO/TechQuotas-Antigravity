@@ -40,7 +40,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('techquotas.refresh', () => {
 			logger.info('Extension', 'Manual refresh triggered');
-			vscode.window.showInformationMessage('TechQuotas: Refreshing...');
+			// Silent refresh - notification removed per user request
 			quota_manager.fetch_quota();
 		})
 	);
