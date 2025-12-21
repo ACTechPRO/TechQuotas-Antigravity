@@ -70,6 +70,15 @@
           "default": true,
           "description": "Show visual gauge icons for each model.",
           "order": 5
+        },
+        "techquotas.groupOrder": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Order of groups in status bar. Available: anthropic, gemini_pro, gemini_flash, gpt_oss",
+          "order": 6
         }
       }
     }

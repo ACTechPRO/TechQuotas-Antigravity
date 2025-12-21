@@ -47,6 +47,17 @@ function get_abbreviation(label: string): string {
 	return words[0]?.slice(0, 8) ?? 'Model';
 }
 
+/** Format time for status bar display (short format like "1h" or "30m") */
+function format_short_time(ms: number): string {
+	if (ms <= 0) return 'now';
+	const mins = Math.ceil(ms / 60000);
+	if (mins < 60) return `${mins}m`;
+	const hours = Math.floor(mins / 60);
+	if (hours < 24) return `${hours}h`;
+	const days = Math.floor(hours / 24);
+	return `${days}d`;
+}
+
 /**
  * Group models for display:
  * - All Anthropic (Claude/Opus) models → single "Anthropic" entry (lowest remaining %)
@@ -59,6 +70,7 @@ interface grouped_model {
 	display_name: string;
 	remaining_percentage: number;
 	time_until_reset_formatted: string;
+	time_until_reset_ms: number;
 	is_exhausted: boolean;
 	source_models: model_quota_info[];
 }
@@ -111,6 +123,7 @@ function group_models(models: model_quota_info[]): grouped_model[] {
 			display_name,
 			remaining_percentage: lowest.remaining_percentage ?? 0,
 			time_until_reset_formatted: lowest.time_until_reset_formatted,
+			time_until_reset_ms: lowest.time_until_reset,
 			is_exhausted: group_models.some(m => m.is_exhausted),
 			source_models: group_models,
 		});
@@ -154,6 +167,7 @@ export class StatusBarManager {
 
 		const show_gauges = this.get_show_gauges();
 		const pinned = this.get_pinned_models();
+		const customOrder = this.get_group_order();
 
 		// Group models for display (Anthropic together, Gemini Pro together, etc.)
 		let grouped = group_models(snapshot.models);
@@ -161,6 +175,20 @@ export class StatusBarManager {
 		// If user has pinned specific groups, filter to only show those
 		if (pinned.length > 0) {
 			grouped = grouped.filter(g => pinned.includes(g.group_id));
+		}
+
+		// Apply custom order if specified, otherwise sort by remaining percentage
+		if (customOrder.length > 0) {
+			grouped = grouped.sort((a, b) => {
+				const aIndex = customOrder.indexOf(a.group_id);
+				const bIndex = customOrder.indexOf(b.group_id);
+				// Items in customOrder come first, in their specified order
+				// Items not in customOrder are sorted to the end by percentage
+				if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
+				if (aIndex >= 0) return -1;
+				if (bIndex >= 0) return 1;
+				return a.remaining_percentage - b.remaining_percentage;
+			});
 		}
 
 		if (show_gauges && grouped.length > 0) {
@@ -183,9 +211,10 @@ export class StatusBarManager {
 
 				const pct = group.remaining_percentage;
 				const ball = get_status_ball(pct);
+				const resetTime = format_short_time(group.time_until_reset_ms);
 
-				// Format: 🟢 Anthropic 75%
-				item.text = `${ball} ${group.display_name} ${Math.round(pct)}%`;
+				// Format: 🟢 Anthropic 75% (2h)
+				item.text = `${ball} ${group.display_name} ${Math.round(pct)}% (${resetTime})`;
 				item.tooltip = this.build_group_tooltip(group);
 				item.backgroundColor = get_quota_color(pct);
 				item.show();
@@ -321,6 +350,16 @@ export class StatusBarManager {
 	private get_show_gauges(): boolean {
 		const config = vscode.workspace.getConfiguration('techquotas');
 		return config.get<boolean>('showGauges', true);
+	}
+
+	private get_group_order(): string[] {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		return config.get<string[]>('groupOrder') || [];
+	}
+
+	private async set_group_order(order: string[]): Promise<void> {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		await config.update('groupOrder', order, vscode.ConfigurationTarget.Global);
 	}
 
 	private async toggle_pinned_group(group_id: string): Promise<void> {
