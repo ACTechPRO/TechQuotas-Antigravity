@@ -244,7 +244,19 @@ export class StatusBarManager {
 
 		let grouped = group_models(snapshot.models);
 
-		if (pinned.length > 0) {
+		// Logic:
+		// - If pinned list is empty -> Show ONLY Rocket (main_item)
+		// - If pinned list has items -> Show pinned items, HIDE Rocket (main_item)
+		if (pinned.length === 0) {
+			// No models selected: Show Rocket
+			this.main_item.text = '$(rocket) TQ';
+			this.main_item.tooltip = 'TechQuotas Antigravity - Click to select models';
+			this.main_item.show();
+			this.group_renders.forEach(r => r.hide());
+			return;
+		} else {
+			// Models selected: Hide Rocket and show filtered models
+			this.main_item.hide();
 			grouped = grouped.filter(g => pinned.includes(g.group_id));
 		}
 
@@ -261,12 +273,9 @@ export class StatusBarManager {
 		}
 
 		if (show_gauges && grouped.length > 0) {
-			this.main_item.text = '$(rocket)';
-			this.main_item.tooltip = 'TechQuotas Antigravity - Click for details';
-
 			const active_ids = new Set<string>();
-			// Start priority at 99. Each group takes ~1 priority slot (handled by fractional steps in Render class)
-			// But since we use P and P-0.1, we should space groups by at least 1.
+
+			// Start priority at 99.
 			let priority = 99;
 
 			for (const group of grouped) {
@@ -279,7 +288,7 @@ export class StatusBarManager {
 				}
 
 				render.update(group);
-				priority -= 1; // Decrement by 1 ensures groups don't overlap in priority
+				priority -= 1;
 			}
 
 			// Hide items for groups no longer displayed
@@ -289,31 +298,20 @@ export class StatusBarManager {
 				}
 			});
 		} else {
-			// Compact mode - show lowest group
-			const lowest = grouped[0];
-
-			if (lowest) {
-				const pct = lowest.remaining_percentage;
-				const ball = get_status_ball(pct);
-				// In compact mode (single item), we typically have to sacrifice multi-color text
-				// UNLESS we use the same split logic. But main_item is single.
-				// We'll keep main_item simple: colored icon + white text is NOT possible in one item.
-				// But we can set color to undefined (white) and allow icon to be white too, OR color it all.
-				// Compromise: in compact mode, color the whole thing OR white. 
-				// User wants white text. We will set color=undefined for Compact mode.
-				// Wait, if it's compact, it's just one TQ item.
-				this.main_item.text = `${ball} TQ ${Math.round(pct)}%`;
-				this.main_item.color = undefined; // All white for compact mode to be safe
-				this.main_item.backgroundColor = undefined;
-			} else {
+			// Fallback if gauges off but models pinned? 
+			// In that case, we should probably stick to showing nothing or a compact Rocket?
+			// But for now, if pinned > 0 but gauges off, we hide everything?
+			// Let's assume user wants to see nothing if gauges are off, or just Rocket.
+			// Reverting to Rocket if gauges explicitly off.
+			if (!show_gauges) {
 				this.main_item.text = '$(rocket) TQ';
+				this.main_item.show();
+				this.group_renders.forEach(r => r.hide());
+			} else {
+				// Gauges on but no groups (after filter)? (Should have been caught by pinned.length check)
+				// Clean up.
+				this.group_renders.forEach(r => r.hide());
 			}
-
-			this.group_renders.forEach(r => r.hide());
-		}
-
-		if (!show_gauges) {
-			this.group_renders.forEach(r => r.hide());
 		}
 	}
 
