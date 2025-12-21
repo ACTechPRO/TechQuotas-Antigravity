@@ -7,186 +7,233 @@ import * as vscode from 'vscode';
 import { quota_snapshot } from '../utils/types';
 
 export class DashboardPanel {
-    public static currentPanel: DashboardPanel | undefined;
-    private readonly _panel: vscode.WebviewPanel;
-    private readonly _extensionUri: vscode.Uri;
-    private _disposables: vscode.Disposable[] = [];
-    private _lastSnapshot: quota_snapshot | undefined;
+	public static currentPanel: DashboardPanel | undefined;
+	private readonly _panel: vscode.WebviewPanel;
+	private readonly _extensionUri: vscode.Uri;
+	private _disposables: vscode.Disposable[] = [];
+	private _lastSnapshot: quota_snapshot | undefined;
 
-    public static createOrShow(extensionUri: vscode.Uri, snapshot?: quota_snapshot) {
-        const column = vscode.window.activeTextEditor
-            ? vscode.window.activeTextEditor.viewColumn
-            : undefined;
+	public static createOrShow(extensionUri: vscode.Uri, snapshot?: quota_snapshot) {
+		const column = vscode.window.activeTextEditor
+			? vscode.window.activeTextEditor.viewColumn
+			: undefined;
 
-        // If panel exists, reveal it
-        if (DashboardPanel.currentPanel) {
-            DashboardPanel.currentPanel._panel.reveal(column);
-            if (snapshot) {
-                DashboardPanel.currentPanel.update(snapshot);
-            }
-            return;
-        }
+		// If panel exists, reveal it
+		if (DashboardPanel.currentPanel) {
+			DashboardPanel.currentPanel._panel.reveal(column);
+			if (snapshot) {
+				DashboardPanel.currentPanel.update(snapshot);
+			}
+			return;
+		}
 
-        // Create new panel
-        const panel = vscode.window.createWebviewPanel(
-            'techquotasDashboard',
-            'TechQuotas Dashboard',
-            column || vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'assets')],
-            }
-        );
+		// Create new panel
+		const panel = vscode.window.createWebviewPanel(
+			'techquotasDashboard',
+			'TechQuotas Dashboard',
+			column || vscode.ViewColumn.One,
+			{
+				enableScripts: true,
+				retainContextWhenHidden: true,
+				localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'assets')],
+			}
+		);
 
-        DashboardPanel.currentPanel = new DashboardPanel(panel, extensionUri, snapshot);
-    }
+		DashboardPanel.currentPanel = new DashboardPanel(panel, extensionUri, snapshot);
+	}
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, snapshot?: quota_snapshot) {
-        this._panel = panel;
-        this._extensionUri = extensionUri;
-        this._lastSnapshot = snapshot;
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, snapshot?: quota_snapshot) {
+		this._panel = panel;
+		this._extensionUri = extensionUri;
+		this._lastSnapshot = snapshot;
 
-        // Set initial HTML content
-        this._updateWebview();
+		// Set initial HTML content
+		this._updateWebview();
 
-        // Handle messages from webview
-        this._panel.webview.onDidReceiveMessage(
-            async message => {
-                switch (message.command) {
-                    case 'toggleGroup':
-                        await this._toggleGroup(message.groupId);
-                        break;
-                    case 'refresh':
-                        vscode.commands.executeCommand('techquotas.refresh');
-                        break;
-                    case 'openSettings':
-                        vscode.commands.executeCommand('workbench.action.openSettings', 'techquotas');
-                        break;
-                }
-            },
-            null,
-            this._disposables
-        );
+		// Handle messages from webview
+		this._panel.webview.onDidReceiveMessage(
+			async message => {
+				switch (message.command) {
+					case 'toggleGroup':
+						await this._toggleGroup(message.groupId);
+						break;
+					case 'moveGroup':
+						await this._moveGroup(message.groupId, message.direction);
+						break;
+					case 'refresh':
+						vscode.commands.executeCommand('techquotas.refresh');
+						break;
+					case 'openSettings':
+						vscode.commands.executeCommand('workbench.action.openSettings', 'techquotas');
+						break;
+				}
+			},
+			null,
+			this._disposables
+		);
 
-        // Handle panel disposal
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-    }
+		// Handle panel disposal
+		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+	}
 
-    public update(snapshot: quota_snapshot) {
-        this._lastSnapshot = snapshot;
-        this._panel.webview.postMessage({
-            command: 'updateData',
-            snapshot: this._serializeSnapshot(snapshot),
-            pinnedGroups: this._getPinnedGroups(),
-        });
-    }
+	public update(snapshot: quota_snapshot) {
+		this._lastSnapshot = snapshot;
+		this._panel.webview.postMessage({
+			command: 'updateData',
+			snapshot: this._serializeSnapshot(snapshot),
+			pinnedGroups: this._getPinnedGroups(),
+		});
+	}
 
-    private _serializeSnapshot(snapshot: quota_snapshot) {
-        // Group models for display
-        const groups = this._groupModels(snapshot.models);
-        return {
-            timestamp: snapshot.timestamp.toISOString(),
-            groups: groups,
-            promptCredits: snapshot.prompt_credits,
-        };
-    }
+	private _serializeSnapshot(snapshot: quota_snapshot) {
+		// Group models for display
+		const groups = this._groupModels(snapshot.models);
+		return {
+			timestamp: snapshot.timestamp.toISOString(),
+			groups: groups,
+			promptCredits: snapshot.prompt_credits,
+		};
+	}
 
-    private _groupModels(models: any[]) {
-        const groups: Map<string, any[]> = new Map();
+	private _groupModels(models: any[]) {
+		const groups: Map<string, any[]> = new Map();
 
-        for (const m of models) {
-            const label = m.label.toLowerCase();
-            let groupId: string;
-            let groupName: string;
+		for (const m of models) {
+			const label = m.label.toLowerCase();
+			let groupId: string;
+			let groupName: string;
 
-            if (label.includes('claude') || label.includes('opus')) {
-                groupId = 'anthropic';
-                groupName = 'Anthropic';
-            } else if (label.includes('gemini') && label.includes('pro')) {
-                groupId = 'gemini_pro';
-                groupName = 'Gemini Pro';
-            } else if (label.includes('gemini') && label.includes('flash')) {
-                groupId = 'gemini_flash';
-                groupName = 'Gemini Flash';
-            } else {
-                groupId = m.model_id;
-                groupName = m.label;
-            }
+			if (label.includes('claude') || label.includes('opus')) {
+				groupId = 'anthropic';
+				groupName = 'Anthropic';
+			} else if (label.includes('gemini') && label.includes('pro')) {
+				groupId = 'gemini_pro';
+				groupName = 'Gemini Pro';
+			} else if (label.includes('gemini') && label.includes('flash')) {
+				groupId = 'gemini_flash';
+				groupName = 'Gemini Flash';
+			} else {
+				groupId = m.model_id;
+				groupName = m.label;
+			}
 
-            if (!groups.has(groupId)) {
-                groups.set(groupId, []);
-            }
-            groups.get(groupId)!.push({ ...m, groupId, groupName });
-        }
+			if (!groups.has(groupId)) {
+				groups.set(groupId, []);
+			}
+			groups.get(groupId)!.push({ ...m, groupId, groupName });
+		}
 
-        // Convert to array with aggregated data
-        const result: any[] = [];
-        for (const [groupId, groupModels] of groups) {
-            const lowest = groupModels.reduce((min, m) =>
-                (m.remaining_percentage ?? 100) < (min.remaining_percentage ?? 100) ? m : min
-            );
+		// Convert to array with aggregated data
+		const result: any[] = [];
+		for (const [groupId, groupModels] of groups) {
+			const lowest = groupModels.reduce((min, m) =>
+				(m.remaining_percentage ?? 100) < (min.remaining_percentage ?? 100) ? m : min
+			);
 
-            result.push({
-                groupId,
-                groupName: groupModels[0].groupName,
-                remainingPercentage: lowest.remaining_percentage ?? 0,
-                timeUntilReset: lowest.time_until_reset_formatted,
-                resetTime: lowest.reset_time,
-                isExhausted: groupModels.some((m: any) => m.is_exhausted),
-                models: groupModels.map((m: any) => ({
-                    label: m.label,
-                    remainingPercentage: m.remaining_percentage ?? 0,
-                    timeUntilReset: m.time_until_reset_formatted,
-                })),
-            });
-        }
+			result.push({
+				groupId,
+				groupName: groupModels[0].groupName,
+				remainingPercentage: lowest.remaining_percentage ?? 0,
+				timeUntilReset: lowest.time_until_reset_formatted,
+				resetTime: lowest.reset_time,
+				isExhausted: groupModels.some((m: any) => m.is_exhausted),
+				models: groupModels.map((m: any) => ({
+					label: m.label,
+					remainingPercentage: m.remaining_percentage ?? 0,
+					timeUntilReset: m.time_until_reset_formatted,
+				})),
+			});
+		}
 
-        return result.sort((a, b) => a.remainingPercentage - b.remainingPercentage);
-    }
+		return result.sort((a, b) => a.remainingPercentage - b.remainingPercentage);
+	}
 
-    private _getPinnedGroups(): string[] {
-        const config = vscode.workspace.getConfiguration('techquotas');
-        return config.get<string[]>('pinnedModels') || [];
-    }
+	private _getPinnedGroups(): string[] {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		return config.get<string[]>('pinnedModels') || [];
+	}
 
-    private async _toggleGroup(groupId: string) {
-        const config = vscode.workspace.getConfiguration('techquotas');
-        const pinned = [...(config.get<string[]>('pinnedModels') || [])];
+	private async _toggleGroup(groupId: string) {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		const pinned = [...(config.get<string[]>('pinnedModels') || [])];
 
-        const index = pinned.indexOf(groupId);
-        if (index >= 0) {
-            pinned.splice(index, 1);
-        } else {
-            pinned.push(groupId);
-        }
+		const index = pinned.indexOf(groupId);
+		if (index >= 0) {
+			pinned.splice(index, 1);
+		} else {
+			pinned.push(groupId);
+		}
 
-        await config.update('pinnedModels', pinned, vscode.ConfigurationTarget.Global);
+		await config.update('pinnedModels', pinned, vscode.ConfigurationTarget.Global);
 
-        // Update webview with new pinned state
-        this._panel.webview.postMessage({
-            command: 'updatePinned',
-            pinnedGroups: pinned,
-        });
-    }
+		// Update webview with new pinned state
+		this._panel.webview.postMessage({
+			command: 'updatePinned',
+			pinnedGroups: pinned,
+		});
+	}
 
-    private _updateWebview() {
-        this._panel.webview.html = this._getHtmlContent();
+	private _getGroupOrder(): string[] {
+		const config = vscode.workspace.getConfiguration('techquotas');
+		return config.get<string[]>('groupOrder') || [];
+	}
 
-        // Send initial data if available
-        if (this._lastSnapshot) {
-            setTimeout(() => {
-                this._panel.webview.postMessage({
-                    command: 'updateData',
-                    snapshot: this._serializeSnapshot(this._lastSnapshot!),
-                    pinnedGroups: this._getPinnedGroups(),
-                });
-            }, 100);
-        }
-    }
+	private async _moveGroup(groupId: string, direction: 'up' | 'down') {
+		const config = vscode.workspace.getConfiguration('techquotas');
 
-    private _getHtmlContent(): string {
-        return `<!DOCTYPE html>
+		// Get current order, or build default from current groups
+		let order = [...this._getGroupOrder()];
+
+		// If no custom order, build from current snapshot groups
+		if (order.length === 0 && this._lastSnapshot) {
+			const groups = this._groupModels(this._lastSnapshot.models);
+			order = groups.map(g => g.groupId);
+		}
+
+		const index = order.indexOf(groupId);
+		if (index < 0) {
+			// Group not in order, add it
+			order.push(groupId);
+			return;
+		}
+
+		if (direction === 'up' && index > 0) {
+			// Swap with previous
+			[order[index - 1], order[index]] = [order[index], order[index - 1]];
+		} else if (direction === 'down' && index < order.length - 1) {
+			// Swap with next
+			[order[index], order[index + 1]] = [order[index + 1], order[index]];
+		}
+
+		await config.update('groupOrder', order, vscode.ConfigurationTarget.Global);
+
+		// Refresh data to show new order
+		this._panel.webview.postMessage({
+			command: 'updateOrder',
+			groupOrder: order,
+		});
+
+		// Trigger a refresh to update the status bar
+		vscode.commands.executeCommand('techquotas.refresh');
+	}
+
+	private _updateWebview() {
+		this._panel.webview.html = this._getHtmlContent();
+
+		// Send initial data if available
+		if (this._lastSnapshot) {
+			setTimeout(() => {
+				this._panel.webview.postMessage({
+					command: 'updateData',
+					snapshot: this._serializeSnapshot(this._lastSnapshot!),
+					pinnedGroups: this._getPinnedGroups(),
+				});
+			}, 100);
+		}
+	}
+
+	private _getHtmlContent(): string {
+		return `<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -438,6 +485,38 @@ export class DashboardPanel {
 			justify-content: space-between;
 			padding: 4px 0;
 		}
+
+		.card-controls {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.order-btn {
+			width: 24px;
+			height: 24px;
+			border: 1px solid var(--border-color);
+			background: var(--bg-secondary);
+			color: var(--text-secondary);
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+
+		.order-btn:hover:not(:disabled) {
+			background: var(--bg-card);
+			border-color: var(--accent-blue);
+			color: var(--accent-blue);
+		}
+
+		.order-btn:disabled {
+			opacity: 0.3;
+			cursor: not-allowed;
+		}
 	</style>
 </head>
 <body>
@@ -487,22 +566,28 @@ export class DashboardPanel {
 				return;
 			}
 
-			const cardsHtml = groups.map(group => {
+			const cardsHtml = groups.map((group, index) => {
 				const pct = group.remainingPercentage;
 				const color = getColor(pct);
 				const circumference = 2 * Math.PI * 58;
 				const offset = circumference - (pct / 100) * circumference;
 				const isPinned = pinnedGroups.includes(group.groupId);
 				const modelCount = group.models.length;
+				const isFirst = index === 0;
+				const isLast = index === groups.length - 1;
 
 				return \`
-					<div class="card">
+					<div class="card" data-group-id="\${group.groupId}">
 						<div class="card-header">
 							<span class="card-title">\${group.groupName}\${modelCount > 1 ? ' (' + modelCount + ')' : ''}</span>
-							<label class="toggle-switch">
-								<input type="checkbox" \${isPinned ? 'checked' : ''} onchange="toggleGroup('\${group.groupId}')">
-								<span class="toggle-slider"></span>
-							</label>
+							<div class="card-controls">
+								<button class="order-btn" \${isFirst ? 'disabled' : ''} onclick="moveGroup('\${group.groupId}', 'up')" title="Move up">▲</button>
+								<button class="order-btn" \${isLast ? 'disabled' : ''} onclick="moveGroup('\${group.groupId}', 'down')" title="Move down">▼</button>
+								<label class="toggle-switch">
+									<input type="checkbox" \${isPinned ? 'checked' : ''} onchange="toggleGroup('\${group.groupId}')">
+									<span class="toggle-slider"></span>
+								</label>
+							</div>
 						</div>
 						
 						<div class="progress-ring-container">
@@ -556,6 +641,10 @@ export class DashboardPanel {
 			vscode.postMessage({ command: 'openSettings' });
 		}
 
+		function moveGroup(groupId, direction) {
+			vscode.postMessage({ command: 'moveGroup', groupId: groupId, direction: direction });
+		}
+
 		window.addEventListener('message', event => {
 			const message = event.data;
 			
@@ -576,17 +665,17 @@ export class DashboardPanel {
 	</script>
 </body>
 </html>`;
-    }
+	}
 
-    public dispose() {
-        DashboardPanel.currentPanel = undefined;
-        this._panel.dispose();
+	public dispose() {
+		DashboardPanel.currentPanel = undefined;
+		this._panel.dispose();
 
-        while (this._disposables.length) {
-            const x = this._disposables.pop();
-            if (x) {
-                x.dispose();
-            }
-        }
-    }
+		while (this._disposables.length) {
+			const x = this._disposables.pop();
+			if (x) {
+				x.dispose();
+			}
+		}
+	}
 }

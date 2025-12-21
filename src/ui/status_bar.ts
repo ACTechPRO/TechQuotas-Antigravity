@@ -47,13 +47,27 @@ function get_abbreviation(label: string): string {
 	return words[0]?.slice(0, 8) ?? 'Model';
 }
 
-/** Format time for status bar display (short format like "1h" or "30m") */
+/** Format time for status bar display (format like "01:10h" or "45m") */
 function format_short_time(ms: number): string {
 	if (ms <= 0) return 'now';
-	const mins = Math.ceil(ms / 60000);
-	if (mins < 60) return `${mins}m`;
-	const hours = Math.floor(mins / 60);
-	if (hours < 24) return `${hours}h`;
+	const totalMins = Math.ceil(ms / 60000);
+
+	if (totalMins < 60) {
+		// Under 1 hour: show minutes only
+		return `${totalMins}m`;
+	}
+
+	const hours = Math.floor(totalMins / 60);
+	const mins = totalMins % 60;
+
+	if (hours < 24) {
+		// Format as HH:MMh (e.g., "01:10h" or "4:30h")
+		const hh = hours.toString().padStart(2, '0');
+		const mm = mins.toString().padStart(2, '0');
+		return `${hh}:${mm}h`;
+	}
+
+	// More than 24 hours: show days
 	const days = Math.floor(hours / 24);
 	return `${days}d`;
 }
