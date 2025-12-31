@@ -653,6 +653,7 @@ export class MCPPanel {
 				}
 
 				let currentInstalledFilter = null;
+				let recommendedActiveTags = [];
 
 				function renderServers(servers) {
 					serversData = servers;
@@ -739,6 +740,10 @@ export class MCPPanel {
 
 				function renderRecommended(items) {
 					recommendedData = items || [];
+					filterRecommended();
+				}
+
+				function filterRecommended() {
 					const container = document.getElementById('recommended-list');
 					
 					if (!recommendedData || recommendedData.length === 0) {
@@ -746,7 +751,37 @@ export class MCPPanel {
 						return;
 					}
 
-					container.innerHTML = recommendedData.map(item => \`
+					// Filter by active tags
+					let filteredItems = recommendedData;
+					if (recommendedActiveTags.length > 0) {
+						filteredItems = recommendedData.filter(item => {
+							const itemTags = item.tags || [];
+							return recommendedActiveTags.every(tag => itemTags.includes(tag));
+						});
+					}
+
+					// Render active tags UI
+					let activeTagsHtml = '';
+					if (recommendedActiveTags.length > 0) {
+						activeTagsHtml = \`
+							<div style="grid-column: 1/-1; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+								\${recommendedActiveTags.map(tag => \`
+									<span class="tag-chip">
+										\${tag}
+										<span class="tag-chip-remove" onclick="filterRecommendedWithTag('\${tag}')">×</span>
+									</span>
+								\`).join('')}
+								<small style="color: var(--text-secondary); cursor: pointer; margin-left: 10px;" onclick="clearRecommendedTags()">Clear All</small>
+							</div>
+						\`;
+					}
+
+					if (filteredItems.length === 0) {
+						container.innerHTML = activeTagsHtml + '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-secondary);">No recommendations match your filter.</p>';
+						return;
+					}
+
+					container.innerHTML = activeTagsHtml + filteredItems.map(item => \`
 						<div class="card">
 							<div class="card-header">
 								<span class="card-title" title="\${item.name}">\${item.name.split('/').pop()}</span>
@@ -757,7 +792,8 @@ export class MCPPanel {
 									let cls = 'tag';
 									if(t === 'Cloud') cls += ' cloud';
 									if(t === 'Local') cls += ' local';
-									return \`<span class="\${cls}" onclick="filterWithTag('\${t}')">\${t}</span>\`;
+									if(recommendedActiveTags.includes(t)) cls += ' active-tag-highlight';
+									return \`<span class="\${cls}" onclick="filterRecommendedWithTag('\${t}')">\${t}</span>\`;
 								}).join('')}
 							</div>
 							<div class="card-desc" title="\${item.description}">
@@ -769,6 +805,20 @@ export class MCPPanel {
 							</div>
 						</div>
 					\`).join('');
+				}
+
+				function filterRecommendedWithTag(tag) {
+					if (recommendedActiveTags.includes(tag)) {
+						recommendedActiveTags = recommendedActiveTags.filter(t => t !== tag);
+					} else {
+						recommendedActiveTags.push(tag);
+					}
+					filterRecommended();
+				}
+
+				function clearRecommendedTags() {
+					recommendedActiveTags = [];
+					filterRecommended();
 				}
 
 				function renderRegistry(data) {
