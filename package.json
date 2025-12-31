@@ -2,7 +2,7 @@
   "name": "techquotas-antigravity",
   "displayName": "TechQuotas Antigravity",
   "description": "Advanced quota monitoring with visual gauges for Antigravity IDE by AC Tech",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "ac-tech-pro",
   "icon": "assets/logo.png",
   "engines": {
@@ -32,6 +32,23 @@
       {
         "command": "techquotas.openDashboard",
         "title": "TechQuotas: Open Dashboard"
+      },
+      {
+        "command": "techquotas.openMCPPanel",
+        "title": "TechQuotas: Open MCP Panel"
+      },
+      {
+        "command": "techquotas.toggleMCPServer",
+        "title": "Toggle MCP Server"
+      },
+      {
+        "command": "techquotas.refreshMCP",
+        "title": "Refresh MCP Servers",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "techquotas.checkForUpdates",
+        "title": "TechQuotas: Check for Updates"
       }
     ],
     "configuration": {
@@ -79,8 +96,52 @@
           },
           "description": "Order of groups in status bar. Available: anthropic, gemini_pro, gemini_flash, gpt_oss",
           "order": 6
+        },
+        "techquotas.autoUpdate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically download and install updates from GitHub Releases.",
+          "order": 7
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "techquotas",
+          "title": "TechQuotas",
+          "icon": "assets/mcp-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "techquotas": [
+        {
+          "id": "techquotasMCP",
+          "name": "MCP Servers"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "techquotas.refreshMCP",
+          "when": "view == techquotasMCP",
+          "group": "navigation"
+        },
+        {
+          "command": "techquotas.openMCPPanel",
+          "when": "view == techquotasMCP",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "techquotas.toggleMCPServer",
+          "when": "view == techquotasMCP",
+          "group": "inline"
+        }
+      ]
     }
   },
   "scripts": {

@@ -66,6 +66,9 @@ export class DashboardPanel {
 					case 'openSettings':
 						vscode.commands.executeCommand('workbench.action.openSettings', 'techquotas');
 						break;
+					case 'openMCP':
+						vscode.commands.executeCommand('techquotas.openMCPPanel');
+						break;
 				}
 			},
 			null,
@@ -541,6 +544,7 @@ export class DashboardPanel {
 		</h1>
 		<div class="header-actions">
 			<button class="btn" onclick="refresh()">⟳ Refresh</button>
+			<button class="btn" onclick="openMCP()">🔌 Manage MCP</button>
 			<button class="btn" onclick="openSettings()">⚙ Settings</button>
 		</div>
 	</div>
@@ -651,9 +655,13 @@ export class DashboardPanel {
 			vscode.postMessage({ command: 'refresh' });
 		}
 
-		function openSettings() {
-			vscode.postMessage({ command: 'openSettings' });
-		}
+        function openSettings() {
+            vscode.postMessage({ command: 'openSettings' });
+        }
+
+        function openMCP() {
+            vscode.postMessage({ command: 'openMCP' });
+        }
 
 		function moveGroup(groupId, direction) {
 			vscode.postMessage({ command: 'moveGroup', groupId: groupId, direction: direction });

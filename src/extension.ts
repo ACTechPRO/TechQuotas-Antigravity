@@ -9,6 +9,11 @@ import { ProcessFinder } from './core/process_finder';
 import { QuotaManager } from './core/quota_manager';
 import { StatusBarManager } from './ui/status_bar';
 import { DashboardPanel } from './ui/dashboard';
+import { MCPManager } from './core/mcp_manager';
+import { MCPRegistry } from './core/mcp_registry';
+import { MCPPanel } from './ui/mcp_panel';
+import { MCPTreeProvider, MCPServerItem } from './ui/mcp_treeview';
+import { UpdateChecker } from './core/update_checker';
 import { logger } from './utils/logger';
 
 let extensionUri: vscode.Uri;
@@ -17,6 +22,9 @@ let config_manager: ConfigManager;
 let process_finder: ProcessFinder;
 let quota_manager: QuotaManager;
 let status_bar: StatusBarManager;
+let mcp_manager: MCPManager;
+let mcp_registry: MCPRegistry;
+let update_checker: UpdateChecker;
 let is_initialized = false;
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -30,6 +38,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	process_finder = new ProcessFinder();
 	quota_manager = new QuotaManager();
 	status_bar = new StatusBarManager();
+
+	// Initialize MCP Components
+	mcp_manager = new MCPManager();
+	mcp_registry = new MCPRegistry();
+
+	// Register MCP Tree View
+	const mcpTreeProvider = new MCPTreeProvider(mcp_manager);
+	vscode.window.registerTreeDataProvider('techquotasMCP', mcpTreeProvider);
+
+	// Initialize Update Checker
+	update_checker = new UpdateChecker(context);
 
 	context.subscriptions.push(status_bar);
 
@@ -92,6 +111,36 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// MCP Commands
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.openMCPPanel', () => {
+			logger.info('Extension', 'Opening MCP Panel');
+			MCPPanel.createOrShow(extensionUri, mcp_manager, mcp_registry);
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.toggleMCPServer', async (item: MCPServerItem) => {
+			if (item) {
+				const newState = item.contextValue === 'mcpServerDisabled'; // If currently disabled, new state is enabled
+				await mcp_manager.toggle_server(item.id, newState);
+			}
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.refreshMCP', () => {
+			mcpTreeProvider.refresh();
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.checkForUpdates', () => {
+			logger.info('Extension', 'Manual update check triggered');
+			update_checker.checkForUpdates(true);
+		})
+	);
+
 	// Setup Quota Manager Callbacks
 	quota_manager.on_update(snapshot => {
 		const current_config = config_manager.get_config();
@@ -118,6 +167,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	initialize_extension().catch(err => {
 		logger.error('Extension', 'Failed to initialize TechQuotas:', err);
 	});
+
+	// Check for updates after a short delay (non-blocking)
+	setTimeout(() => {
+		update_checker.checkForUpdates();
+	}, 5000);
 
 	// Handle Config Changes
 	context.subscriptions.push(
@@ -198,4 +252,5 @@ export function deactivate() {
 	logger.info('Extension', 'TechQuotas deactivating');
 	quota_manager?.stop_polling();
 	status_bar?.dispose();
+	mcp_manager?.dispose();
 }
