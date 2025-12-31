@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="TechQuotas Antigravity - Extensão VS Code para monitoramento de quotas de APIs de IA (OpenAI, Anthropic, Gemini, Groq).">
+    <title>TechQuotas Antigravity - VS Code Extension | AC Tech Solutions</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <span>AC Tech</span>
+            </a>
+
+            <nav class="nav" id="mainNav">
+                <a href="https://ac-tech.pro" class="nav-link">Início</a>
+                <a href="https://techair.ac-tech.pro" class="nav-link">TechAir</a>
+                <a href="https://actechpro.github.io/Microsoft-Ultimate-Installer" class="nav-link">Microsoft
+                    Installer</a>
+                <a href="index.html" class="nav-link active">TechQuotas</a>
+                <a href="https://ac-tech.pro/store.html" class="nav-link">Loja</a>
+                <a href="https://ac-tech.pro/about.html" class="nav-link">Sobre</a>
+            </nav>
+
+            <div class="header-actions">
+                <a href="https://github.com/ACTechPRO/TechQuotas-Antigravity/releases/latest" target="_blank"
+                    class="btn btn-primary btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Baixar VSIX
+                </a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero techquotas-hero">
+        <div class="container">
+            <div class="grid grid-cols-2 gap-16 items-center">
+                <div class="hero-content" data-animate="fade-right">
+                    <span class="badge mb-6"
+                        style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6; border: 1px solid rgba(139, 92, 246, 0.3);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                        </svg>
+                        VS Code Extension
+                    </span>
+
+                    <h1 class="hero-title">
+                        <span class="text-gradient-techquotas">TechQuotas</span> Antigravity
+                    </h1>
+
+                    <p class="hero-subtitle">
+                        Monitore suas quotas de APIs de IA diretamente no VS Code.
+                        OpenAI, Anthropic, Google Gemini, Groq - tudo em um painel.
+                    </p>
+
+                    <!-- Install Command -->
+                    <div class="code-block mt-8">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span class="code-dot"></span>
+                                <span class="code-dot"></span>
+                                <span class="code-dot"></span>
+                            </div>
+                            <span class="code-lang">VS Code</span>
+                            <button class="code-copy" data-copy="ext install actech.techquotas-antigravity">
+                                Copiar
+                            </button>
+                        </div>
+                        <div class="code-content">
+                            <code>ext install actech.techquotas-antigravity</code>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-8">
+                        <a href="https://github.com/ACTechPRO/TechQuotas-Antigravity/releases/latest" target="_blank"
+                            class="btn btn-lg" style="background: var(--gradient-techquotas); color: white;"
+                            data-magnetic>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            Baixar VSIX
+                        </a>
+                        <a href="https://github.com/ACTechPRO/TechQuotas-Antigravity" target="_blank"
+                            class="btn btn-secondary btn-lg">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                            </svg>
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-visual" data-animate="fade-left">
+                    <div class="vscode-sidebar" data-tilt="5">
+                        <img src="assets/images/TechQuotas Antigravity.png" alt="TechQuotas Antigravity Extension"
+                            class="rounded-2xl"
+                            style="box-shadow: var(--shadow-2xl), 0 0 100px rgba(139, 92, 246, 0.2);">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROVIDERS SECTION -->
+    <section class="section" style="background: var(--bg-surface);">
+        <div class="container">
+            <div class="section-header centered" data-animate="fade-up">
+                <span class="section-eyebrow">Providers Suportados</span>
+                <h2 class="section-title">Monitore Todas as Suas APIs</h2>
+                <p class="section-description">
+                    Suporte nativo para os principais provedores de IA do mercado.
+                </p>
+            </div>
+
+            <div class="provider-grid" data-stagger>
+                <div class="provider-card">
+                    <div class="provider-logo" style="background: linear-gradient(135deg, #10A37F, #0D8A6A);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                            <path
+                                d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364l2.0201-1.1638a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" />
+                        </svg>
+                    </div>
+                    <h4 class="provider-name">OpenAI</h4>
+                    <p class="text-xs text-muted">GPT-4, GPT-3.5, DALL-E</p>
+                    <div class="quota-bar">
+                        <div class="quota-fill" style="width: 72%;"></div>
+                    </div>
+                    <p class="text-xs text-muted mt-2">72% usado</p>
+                </div>
+
+                <div class="provider-card">
+                    <div class="provider-logo" style="background: linear-gradient(135deg, #D97757, #C96B4D);">
+                        <span style="color: white; font-weight: bold;">A</span>
+                    </div>
+                    <h4 class="provider-name">Anthropic</h4>
+                    <p class="text-xs text-muted">Claude 3, Claude 2</p>
+                    <div class="quota-bar">
+                        <div class="quota-fill warning" style="width: 85%;"></div>
+                    </div>
+                    <p class="text-xs text-warning mt-2">85% usado</p>
+                </div>
+
+                <div class="provider-card">
+                    <div class="provider-logo" style="background: linear-gradient(135deg, #4285F4, #EA4335);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        </svg>
+                    </div>
+                    <h4 class="provider-name">Google Gemini</h4>
+                    <p class="text-xs text-muted">Gemini Pro, Ultra</p>
+                    <div class="quota-bar">
+                        <div class="quota-fill" style="width: 45%;"></div>
+                    </div>
+                    <p class="text-xs text-muted mt-2">45% usado</p>
+                </div>
+
+                <div class="provider-card">
+                    <div class="provider-logo" style="background: linear-gradient(135deg, #F55036, #E54429);">
+                        <span style="color: white; font-weight: bold;">G</span>
+                    </div>
+                    <h4 class="provider-name">Groq</h4>
+                    <p class="text-xs text-muted">Llama, Mixtral</p>
+                    <div class="quota-bar">
+                        <div class="quota-fill danger" style="width: 95%;"></div>
+                    </div>
+                    <p class="text-xs text-danger mt-2">95% usado</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header centered" data-animate="fade-up">
+                <span class="section-eyebrow">Recursos</span>
+                <h2 class="section-title">Funcionalidades Principais</h2>
+            </div>
+
+            <div class="grid grid-cols-3 gap-8" data-stagger>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Visualização de Quotas</h4>
+                    <p class="feature-description">
+                        Barras de progresso e gráficos mostrando uso em tempo real de cada provider.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(236, 72, 153, 0.15); color: #EC4899;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Alertas de Limite</h4>
+                    <p class="feature-description">
+                        Notificações quando quotas atingem 80%, 90% ou valores personalizados.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(244, 63, 94, 0.15); color: #F43F5E;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Configurável</h4>
+                    <p class="feature-description">
+                        Todas as configurações via settings.json do VS Code. Simples e familiar.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <line x1="3" y1="9" x2="21" y2="9" />
+                            <line x1="9" y1="21" x2="9" y2="9" />
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Painéis Reutilizáveis</h4>
+                    <p class="feature-description">
+                        Crie múltiplos painéis. Organize por projeto ou por provider.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(236, 72, 153, 0.15); color: #EC4899;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Tipagem Forte</h4>
+                    <p class="feature-description">
+                        TypeScript em todo o código fonte. Extensão robusta e confiável.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(244, 63, 94, 0.15); color: #F43F5E;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            <polyline points="7.5 4.21 12 6.81 16.5 4.21" />
+                            <polyline points="7.5 19.79 7.5 14.6 3 12" />
+                            <polyline points="21 12 16.5 14.6 16.5 19.79" />
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                            <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Open Source</h4>
+                    <p class="feature-description">
+                        Código aberto no GitHub. Contribuições são bem-vindas.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONFIGURATION EXAMPLE -->
+    <section class="section" style="background: var(--bg-surface);">
+        <div class="container">
+            <div class="section-header centered" data-animate="fade-up">
+                <span class="section-eyebrow">Configuração</span>
+                <h2 class="section-title">Fácil de Configurar</h2>
+            </div>
+
+            <div class="code-block mx-auto" style="max-width: 700px;" data-animate="fade-up">
+                <div class="code-header">
+                    <div class="code-dots">
+                        <span class="code-dot"></span>
+                        <span class="code-dot"></span>
+                        <span class="code-dot"></span>
+                    </div>
+                    <span class="code-lang">settings.json</span>
+                    <button class="code-copy"
+                        data-copy='{"techquotas.providers": {"openai": {"apiKey": "${OPENAI_API_KEY}","warningThreshold": 80,"criticalThreshold": 95},"anthropic": {"apiKey": "${ANTHROPIC_API_KEY}"}}}'>
+                        Copiar
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>{
+  <span class="hljs-string">"techquotas.providers"</span>: {
+    <span class="hljs-string">"openai"</span>: {
+      <span class="hljs-string">"apiKey"</span>: <span class="hljs-string">"${OPENAI_API_KEY}"</span>,
+      <span class="hljs-string">"warningThreshold"</span>: <span class="hljs-number">80</span>,
+      <span class="hljs-string">"criticalThreshold"</span>: <span class="hljs-number">95</span>
+    },
+    <span class="hljs-string">"anthropic"</span>: {
+      <span class="hljs-string">"apiKey"</span>: <span class="hljs-string">"${ANTHROPIC_API_KEY}"</span>
+    },
+    <span class="hljs-string">"gemini"</span>: {
+      <span class="hljs-string">"apiKey"</span>: <span class="hljs-string">"${GEMINI_API_KEY}"</span>
+    },
+    <span class="hljs-string">"groq"</span>: {
+      <span class="hljs-string">"apiKey"</span>: <span class="hljs-string">"${GROQ_API_KEY}"</span>
+    }
+  },
+  <span class="hljs-string">"techquotas.refreshInterval"</span>: <span class="hljs-number">60000</span>
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="container">
+            <div class="glass-card p-12 text-center" data-animate="fade-up" data-mouse-glow>
+                <h2 class="h2 mb-4">Nunca Mais Seja Pego de Surpresa</h2>
+                <p class="lead mb-8 mx-auto" style="max-width: 600px;">
+                    Instale agora e monitore suas quotas de IA em tempo real.
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="https://github.com/ACTechPRO/TechQuotas-Antigravity/releases/latest" target="_blank"
+                        class="btn btn-xl" style="background: var(--gradient-techquotas); color: white;" data-magnetic>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                        </svg>
+                        Baixar VSIX
+                    </a>
+                    <a href="https://github.com/ACTechPRO/TechQuotas-Antigravity" target="_blank"
+                        class="btn btn-secondary btn-xl">
+                        Ver Documentação
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <div class="logo-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        <span>AC Tech</span>
+                    </a>
+                    <p>Soluções tecnológicas de ponta para profissionais.</p>
+                </div>
+                <div>
+                    <h6 class="footer-title">Produtos</h6>
+                    <nav class="footer-links">
+                        <a href="https://techair.ac-tech.pro" class="footer-link">TechAir</a>
+                        <a href="microsoft-installer.html" class="footer-link">Microsoft Installer</a>
+                        <a href="techquotas.html" class="footer-link">TechQuotas</a>
+                    </nav>
+                </div>
+                <div>
+                    <h6 class="footer-title">Empresa</h6>
+                    <nav class="footer-links">
+                        <a href="about.html" class="footer-link">Sobre</a>
+                        <a href="contact.html" class="footer-link">Contato</a>
+                    </nav>
+                </div>
+                <div>
+                    <h6 class="footer-title">Legal</h6>
+                    <nav class="footer-links">
+                        <a href="privacy.html" class="footer-link">Privacidade</a>
+                        <a href="terms.html" class="footer-link">Termos</a>
+                    </nav>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copyright">© 2025 AC Tech Solutions. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/animations.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

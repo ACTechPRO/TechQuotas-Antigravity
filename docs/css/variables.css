@@ -1,0 +1,267 @@
+/* ============================================
+   AC TECH - DESIGN TOKENS
+   Mega-Corporate Design System
+   ============================================ */
+
+:root {
+  /* ===== COLOR SYSTEM ===== */
+  
+  /* Brand Colors */
+  --brand-primary: #3B82F6;
+  --brand-primary-light: #60A5FA;
+  --brand-primary-dark: #2563EB;
+  --brand-primary-glow: rgba(59, 130, 246, 0.15);
+  --brand-primary-gradient: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  
+  --brand-accent: #10B981;
+  --brand-accent-light: #34D399;
+  --brand-accent-dark: #059669;
+  --brand-accent-glow: rgba(16, 185, 129, 0.15);
+  --brand-accent-gradient: linear-gradient(135deg, #10B981, #06B6D4);
+  
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-success-dark: #059669;
+  
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-warning-dark: #D97706;
+  
+  --color-danger: #EF4444;
+  --color-danger-light: #FEE2E2;
+  --color-danger-dark: #DC2626;
+  
+  --color-info: #06B6D4;
+  --color-info-light: #CFFAFE;
+  --color-info-dark: #0891B2;
+  
+  /* Background Layers (Dark Theme) */
+  --bg-base: #030712;
+  --bg-surface: #0F172A;
+  --bg-elevated: #1E293B;
+  --bg-overlay: #334155;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-active: rgba(255, 255, 255, 0.08);
+  
+  /* Glassmorphism Backgrounds */
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-bg-light: rgba(30, 41, 59, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(20px);
+  
+  /* Text Colors */
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #64748B;
+  --text-disabled: #475569;
+  --text-inverse: #0F172A;
+  
+  /* Border Colors */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-focus: var(--brand-primary);
+  
+  /* ===== ADVANCED GRADIENTS ===== */
+  
+  --gradient-hero: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15) 0%,
+    rgba(139, 92, 246, 0.1) 50%,
+    rgba(16, 185, 129, 0.08) 100%
+  );
+  
+  --gradient-mesh: 
+    radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(16, 185, 129, 0.2) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
+  
+  --gradient-glow: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(59, 130, 246, 0.15),
+    transparent 40%
+  );
+  
+  --gradient-card: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  
+  --gradient-shine: linear-gradient(
+    45deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 75%
+  );
+  
+  /* Product-Specific Gradients */
+  --gradient-techair: linear-gradient(135deg, #3B82F6, #06B6D4, #10B981);
+  --gradient-mui: linear-gradient(135deg, #F59E0B, #EF4444, #EC4899);
+  --gradient-techquotas: linear-gradient(135deg, #8B5CF6, #EC4899, #F43F5E);
+  --gradient-protech: linear-gradient(135deg, #10B981, #06B6D4, #3B82F6);
+  
+  /* ===== TYPOGRAPHY ===== */
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-display: 'Inter', sans-serif;
+  
+  /* Font Sizes - Fluid Typography */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  --text-sm: clamp(0.8125rem, 0.775rem + 0.19vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.9rem + 0.19vw, 1rem);
+  --text-lg: clamp(1.0625rem, 1rem + 0.31vw, 1.125rem);
+  --text-xl: clamp(1.1875rem, 1.1rem + 0.44vw, 1.25rem);
+  --text-2xl: clamp(1.375rem, 1.25rem + 0.63vw, 1.5rem);
+  --text-3xl: clamp(1.625rem, 1.4rem + 1.13vw, 1.875rem);
+  --text-4xl: clamp(2rem, 1.7rem + 1.5vw, 2.25rem);
+  --text-5xl: clamp(2.5rem, 2rem + 2.5vw, 3rem);
+  --text-6xl: clamp(3rem, 2.4rem + 3vw, 3.75rem);
+  --text-hero: clamp(3.5rem, 2.8rem + 3.5vw, 5rem);
+  
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+  
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+  
+  /* ===== SPACING SYSTEM ===== */
+  
+  --space-px: 1px;
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --space-40: 10rem;
+  --space-48: 12rem;
+  --space-64: 16rem;
+  
+  /* ===== SIZING ===== */
+  
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+  
+  --header-height: 72px;
+  --sidebar-width: 280px;
+  
+  /* ===== BORDER RADIUS ===== */
+  
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+  
+  /* ===== SHADOWS ===== */
+  
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.5);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.6);
+  
+  /* Glow Shadows */
+  --shadow-glow-primary: 0 0 30px rgba(59, 130, 246, 0.4);
+  --shadow-glow-accent: 0 0 30px rgba(16, 185, 129, 0.4);
+  --shadow-glow-sm: 0 0 15px rgba(59, 130, 246, 0.3);
+  
+  /* Inset Shadows */
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-inner-glow: inset 0 0 60px rgba(255, 255, 255, 0.02);
+  
+  /* ===== TRANSITIONS ===== */
+  
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  --duration-slowest: 1000ms;
+  
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  --transition-fast: all 150ms var(--ease-out);
+  --transition-normal: all 250ms var(--ease-out);
+  --transition-slow: all 400ms var(--ease-smooth);
+  --transition-colors: color 150ms var(--ease-out), background-color 150ms var(--ease-out), border-color 150ms var(--ease-out);
+  --transition-transform: transform 250ms var(--ease-smooth);
+  --transition-opacity: opacity 250ms var(--ease-out);
+  
+  /* ===== Z-INDEX LAYERS ===== */
+  
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-popover: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+  --z-max: 9999;
+}
+
+/* ===== MEDIA QUERY CUSTOM PROPERTIES ===== */
+/* These are set via JS for responsive designs */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --duration-slowest: 0ms;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 64px;
+    --space-section: var(--space-12);
+  }
+}
