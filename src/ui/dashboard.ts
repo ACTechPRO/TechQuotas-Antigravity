@@ -251,456 +251,506 @@ export class DashboardPanel {
 
 	private _getHtmlContent(): string {
 		return `<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
-	<title>TechQuotas Dashboard</title>
-	<style>
-		:root {
-			--bg-primary: #1e1e1e;
-			--bg-secondary: #252526;
-			--bg-card: #2d2d30;
-			--text-primary: #cccccc;
-			--text-secondary: #858585;
-			--accent-green: #4ec9b0;
-			--accent-yellow: #dcdcaa;
-			--accent-red: #f14c4c;
-			--accent-blue: #569cd6;
-			--border-color: #3c3c3c;
-		}
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>TechQuotas Dashboard</title>
+			<style>
+				:root {
+					--bg-color: #0d1117;
+					--card-bg: #161b22;
+					--card-border: #30363d;
+					--accent-color: #58a6ff;
+					--text-primary: #c9d1d9;
+					--text-secondary: #8b949e;
+					--success-color: #238636;
+					--glass-bg: rgba(22, 27, 34, 0.7);
+					--glass-border: rgba(48, 54, 61, 0.5);
+					
+					/* Quota Specific Colors */
+					--quota-high: #4ec9b0;
+					--quota-med: #dcdcaa;
+					--quota-low: #f14c4c;
+				}
 
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
+				body {
+					padding: 0;
+					margin: 0;
+					font-family: 'Segoe UI', 'Roboto', sans-serif;
+					color: var(--text-primary);
+					background-color: var(--bg-color);
+					background-image: 
+						radial-gradient(circle at 10% 20%, rgba(88, 166, 255, 0.05) 0%, transparent 20%),
+						radial-gradient(circle at 90% 80%, rgba(35, 134, 54, 0.05) 0%, transparent 20%);
+				}
 
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-			background: var(--bg-primary);
-			color: var(--text-primary);
-			padding: 20px;
-			min-height: 100vh;
-		}
+				/* VS Code Scrollbar Styling */
+				::-webkit-scrollbar {
+					width: 10px;
+					height: 10px;
+				}
+				::-webkit-scrollbar-thumb {
+					background: #30363d;
+					border-radius: 5px;
+				}
+				::-webkit-scrollbar-track {
+					background: transparent;
+				}
 
-		.header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 24px;
-			padding-bottom: 16px;
-			border-bottom: 1px solid var(--border-color);
-		}
+				.header {
+					padding: 20px 30px;
+					background: rgba(13, 17, 23, 0.95);
+					backdrop-filter: blur(10px);
+					position: sticky;
+					top: 0;
+					z-index: 100;
+					border-bottom: 1px solid var(--card-border);
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
 
-		.header h1 {
-			font-size: 24px;
-			font-weight: 600;
-			display: flex;
-			align-items: center;
-			gap: 12px;
-		}
+				.header h1 {
+					font-size: 1.5rem;
+					font-weight: 300;
+					margin: 0;
+					color: var(--text-primary);
+					letter-spacing: -0.5px;
+					display: flex;
+					align-items: center;
+					gap: 12px;
+				}
 
-		.header-actions {
-			display: flex;
-			gap: 8px;
-		}
+				.header-actions {
+					display: flex;
+					gap: 10px;
+				}
 
-		.btn {
-			padding: 8px 16px;
-			border: 1px solid var(--border-color);
-			background: var(--bg-secondary);
-			color: var(--text-primary);
-			border-radius: 4px;
-			cursor: pointer;
-			font-size: 13px;
-			transition: all 0.2s;
-		}
+				.btn {
+					background: var(--accent-color);
+					color: white;
+					border: none;
+					padding: 8px 16px;
+					border-radius: 6px;
+					cursor: pointer;
+					font-weight: 600;
+					font-size: 0.9em;
+					transition: all 0.2s;
+				}
 
-		.btn:hover {
-			background: var(--bg-card);
-			border-color: var(--accent-blue);
-		}
+				.btn:hover {
+					filter: brightness(1.1);
+					transform: translateY(-1px);
+				}
 
-		.btn-primary {
-			background: var(--accent-blue);
-			border-color: var(--accent-blue);
-			color: white;
-		}
+				.btn.secondary {
+					background: transparent;
+					border: 1px solid var(--card-border);
+					color: var(--text-primary);
+				}
 
-		.cards-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-			gap: 16px;
-		}
+				.btn.secondary:hover {
+					background: rgba(255, 255, 255, 0.05);
+					border-color: var(--text-secondary);
+				}
 
-		.card {
-			background: var(--bg-card);
-			border-radius: 8px;
-			padding: 20px;
-			border: 1px solid var(--border-color);
-			transition: all 0.2s;
-		}
+				.content {
+					padding: 30px;
+					max-width: 1200px;
+					margin: 0 auto;
+					min-height: calc(100vh - 80px);
+					animation: fadeIn 0.4s ease-out;
+				}
 
-		.card:hover {
-			border-color: var(--accent-blue);
-		}
+				@keyframes fadeIn {
+					from { opacity: 0; transform: translateY(10px); }
+					to { opacity: 1; transform: translateY(0); }
+				}
 
-		.card-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 16px;
-		}
+				.cards-grid {
+					display: grid;
+					grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+					gap: 20px;
+				}
 
-		.card-title {
-			font-size: 16px;
-			font-weight: 600;
-		}
+				.card {
+					background: var(--glass-bg);
+					border: 1px solid var(--glass-border);
+					border-radius: 12px;
+					padding: 20px;
+					position: relative;
+					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+					backdrop-filter: blur(12px);
+					box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+					display: flex;
+					flex-direction: column;
+				}
 
-		.toggle-switch {
-			position: relative;
-			width: 44px;
-			height: 24px;
-		}
+				.card:hover {
+					transform: translateY(-4px);
+					box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+					border-color: var(--accent-color);
+				}
 
-		.toggle-switch input {
-			opacity: 0;
-			width: 0;
-			height: 0;
-		}
+				.card-header {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					margin-bottom: 20px;
+				}
 
-		.toggle-slider {
-			position: absolute;
-			cursor: pointer;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background-color: var(--bg-secondary);
-			transition: 0.3s;
-			border-radius: 24px;
-			border: 1px solid var(--border-color);
-		}
+				.card-title {
+					font-size: 1.1em;
+					font-weight: 600;
+					color: var(--text-primary);
+				}
 
-		.toggle-slider:before {
-			position: absolute;
-			content: "";
-			height: 18px;
-			width: 18px;
-			left: 2px;
-			bottom: 2px;
-			background-color: var(--text-secondary);
-			transition: 0.3s;
-			border-radius: 50%;
-		}
+				.card-controls {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
 
-		.toggle-switch input:checked + .toggle-slider {
-			background-color: var(--accent-blue);
-			border-color: var(--accent-blue);
-		}
+				/* Toggle Switch - Styled to match MCP panel */
+				.toggle-container {
+					position: relative;
+					width: 40px;
+					height: 22px;
+					cursor: pointer;
+				}
 
-		.toggle-switch input:checked + .toggle-slider:before {
-			transform: translateX(20px);
-			background-color: white;
-		}
+				.toggle-chk {
+					opacity: 0;
+					width: 0;
+					height: 0;
+				}
 
-		.progress-ring-container {
-			display: flex;
-			justify-content: center;
-			margin: 16px 0;
-		}
+				.toggle-track {
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					background-color: #30363d;
+					transition: .4s;
+					border-radius: 34px;
+				}
 
-		.progress-ring {
-			position: relative;
-			width: 140px;
-			height: 140px;
-		}
+				.toggle-track:before {
+					position: absolute;
+					content: "";
+					height: 16px;
+					width: 16px;
+					left: 3px;
+					bottom: 3px;
+					background-color: white;
+					transition: .4s;
+					border-radius: 50%;
+				}
 
-		.progress-ring svg {
-			transform: rotate(-90deg);
-		}
+				.toggle-chk:checked + .toggle-track {
+					background-color: var(--accent-color);
+				}
 
-		.progress-ring-bg {
-			fill: none;
-			stroke: var(--bg-secondary);
-			stroke-width: 8;
-		}
+				.toggle-chk:checked + .toggle-track:before {
+					transform: translateX(18px);
+				}
 
-		.progress-ring-fill {
-			fill: none;
-			stroke-width: 8;
-			stroke-linecap: round;
-			transition: stroke-dashoffset 0.5s ease;
-		}
+				/* Order Buttons */
+				.order-btn {
+					width: 24px;
+					height: 24px;
+					border: 1px solid var(--card-border);
+					background: transparent;
+					color: var(--text-secondary);
+					border-radius: 4px;
+					cursor: pointer;
+					font-size: 10px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					transition: all 0.2s;
+				}
 
-		.progress-ring-text {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			text-align: center;
-		}
+				.order-btn:hover:not(:disabled) {
+					border-color: var(--accent-color);
+					color: var(--accent-color);
+				}
 
-		.progress-percentage {
-			font-size: 32px;
-			font-weight: 700;
-		}
+				.order-btn:disabled {
+					opacity: 0.3;
+					cursor: not-allowed;
+				}
 
-		.progress-label {
-			font-size: 12px;
-			color: var(--text-secondary);
-		}
+				/* Progress Ring */
+				.progress-ring-container {
+					display: flex;
+					justify-content: center;
+					margin: 10px 0 20px;
+				}
 
-		.card-footer {
-			display: flex;
-			justify-content: space-between;
-			margin-top: 16px;
-			padding-top: 12px;
-			border-top: 1px solid var(--border-color);
-			font-size: 12px;
-			color: var(--text-secondary);
-		}
+				.progress-ring {
+					position: relative;
+					width: 140px;
+					height: 140px;
+				}
 
-		.status-badge {
-			padding: 2px 8px;
-			border-radius: 4px;
-			font-size: 11px;
-			font-weight: 600;
-		}
+				.progress-ring svg {
+					transform: rotate(-90deg);
+				}
 
-		.status-normal {
-			background: rgba(78, 201, 176, 0.2);
-			color: var(--accent-green);
-		}
+				.progress-ring-bg {
+					fill: none;
+					stroke: rgba(255, 255, 255, 0.05);
+					stroke-width: 8;
+				}
 
-		.status-warning {
-			background: rgba(220, 220, 170, 0.2);
-			color: var(--accent-yellow);
-		}
+				.progress-ring-fill {
+					fill: none;
+					stroke-width: 8;
+					stroke-linecap: round;
+					transition: stroke-dashoffset 0.5s ease;
+				}
 
-		.status-critical {
-			background: rgba(241, 76, 76, 0.2);
-			color: var(--accent-red);
-		}
+				.progress-ring-text {
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					text-align: center;
+				}
 
-		.loading {
-			text-align: center;
-			padding: 60px;
-			color: var(--text-secondary);
-		}
+				.progress-percentage {
+					font-size: 32px;
+					font-weight: 700;
+					letter-spacing: -1px;
+				}
 
-		.model-list {
-			font-size: 12px;
-			color: var(--text-secondary);
-			margin-top: 8px;
-		}
+				.progress-label {
+					font-size: 12px;
+					color: var(--text-secondary);
+					margin-top: 4px;
+					text-transform: uppercase;
+					letter-spacing: 1px;
+				}
 
-		.model-list-item {
-			display: flex;
-			justify-content: space-between;
-			padding: 4px 0;
-		}
+				.model-list {
+					font-size: 0.85em;
+					color: var(--text-secondary);
+					margin-top: auto;
+					padding-top: 15px;
+					border-top: 1px solid var(--glass-border);
+				}
 
-		.card-controls {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
+				.model-list-item {
+					display: flex;
+					justify-content: space-between;
+					padding: 6px 0;
+					border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+				}
+				
+				.model-list-item:last-child {
+					border-bottom: none;
+				}
 
-		.order-btn {
-			width: 24px;
-			height: 24px;
-			border: 1px solid var(--border-color);
-			background: var(--bg-secondary);
-			color: var(--text-secondary);
-			border-radius: 4px;
-			cursor: pointer;
-			font-size: 10px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: all 0.2s;
-		}
+				.card-footer {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					margin-top: 15px;
+					padding-top: 15px;
+					border-top: 1px solid var(--glass-border);
+					font-size: 0.8em;
+					color: var(--text-secondary);
+				}
 
-		.order-btn:hover:not(:disabled) {
-			background: var(--bg-card);
-			border-color: var(--accent-blue);
-			color: var(--accent-blue);
-		}
+				.status-badge {
+					padding: 4px 10px;
+					border-radius: 12px;
+					font-size: 0.75em;
+					font-weight: 600;
+					letter-spacing: 0.5px;
+				}
 
-		.order-btn:disabled {
-			opacity: 0.3;
-			cursor: not-allowed;
-		}
-	</style>
-</head>
-<body>
-	<div class="header">
-		<h1>
-			<span>🚀</span>
-			TechQuotas Dashboard
-		</h1>
-		<div class="header-actions">
-			<button class="btn" onclick="refresh()">⟳ Refresh</button>
-			<button class="btn" onclick="openMCP()">🔌 Manage MCP</button>
-			<button class="btn" onclick="openSettings()">⚙ Settings</button>
-		</div>
-	</div>
+				.status-normal { background: rgba(78, 201, 176, 0.15); color: var(--quota-high); border: 1px solid rgba(78, 201, 176, 0.2); }
+				.status-warning { background: rgba(220, 220, 170, 0.15); color: var(--quota-med); border: 1px solid rgba(220, 220, 170, 0.2); }
+				.status-critical { background: rgba(241, 76, 76, 0.15); color: var(--quota-low); border: 1px solid rgba(241, 76, 76, 0.2); }
 
-	<div id="content">
-		<div class="loading">Loading quota data...</div>
-	</div>
+				.loading {
+					text-align: center;
+					padding: 60px;
+					color: var(--text-secondary);
+					font-weight: 300;
+					letter-spacing: 1px;
+				}
+			</style>
+		</head>
+		<body>
+			<div class="header">
+				<h1>
+					<span style="font-size: 1.2em; margin-right: 10px;">🚀</span>
+					TechQuotas Dashboard
+				</h1>
+				<div class="header-actions">
+					<button class="btn secondary" onclick="refresh()">Refresh</button>
+					<button class="btn secondary" onclick="openMCP()">Manage MCP</button>
+					<button class="btn secondary" onclick="openSettings()">Settings</button>
+				</div>
+			</div>
 
-	<script>
-		const vscode = acquireVsCodeApi();
-		let currentData = null;
-		let pinnedGroups = [];
+			<div id="content" class="content">
+				<div class="loading">LOADING QUOTA DATA...</div>
+			</div>
 
-		function getColor(percentage) {
-			if (percentage <= 20) return '#f14c4c';
-			if (percentage <= 50) return '#dcdcaa';
-			return '#4ec9b0';
-		}
+			<script>
+				const vscode = acquireVsCodeApi();
+				let currentData = null;
+				let pinnedGroups = [];
 
-		function getStatusClass(percentage) {
-			if (percentage <= 20) return 'status-critical';
-			if (percentage <= 50) return 'status-warning';
-			return 'status-normal';
-		}
+				function getColor(percentage) {
+					if (percentage <= 20) return '#f14c4c'; // Low
+					if (percentage <= 50) return '#dcdcaa'; // Med
+					return '#4ec9b0'; // High
+				}
 
-		function getStatusText(percentage) {
-			if (percentage <= 20) return 'Critical';
-			if (percentage <= 50) return 'Warning';
-			return 'Normal';
-		}
+				function getStatusClass(percentage) {
+					if (percentage <= 20) return 'status-critical';
+					if (percentage <= 50) return 'status-warning';
+					return 'status-normal';
+				}
 
-		function renderCards(groups) {
-			const content = document.getElementById('content');
-			
-			if (!groups || groups.length === 0) {
-				content.innerHTML = '<div class="loading">No quota data available</div>';
-				return;
-			}
+				function getStatusText(percentage) {
+					if (percentage <= 20) return 'CRITICAL';
+					if (percentage <= 50) return 'WARNING';
+					return 'NORMAL';
+				}
 
-			const cardsHtml = groups.map((group, index) => {
-				const pct = group.remainingPercentage;
-				const color = getColor(pct);
-				const circumference = 2 * Math.PI * 58;
-				const offset = circumference - (pct / 100) * circumference;
-				const isPinned = pinnedGroups.includes(group.groupId);
-				const modelCount = group.models.length;
-				const isFirst = index === 0;
-				const isLast = index === groups.length - 1;
+				function renderCards(groups) {
+					const content = document.getElementById('content');
+					
+					if (!groups || groups.length === 0) {
+						content.innerHTML = '<div class="loading">No quota data available</div>';
+						return;
+					}
 
-				return \`
-					<div class="card" data-group-id="\${group.groupId}">
-						<div class="card-header">
-							<span class="card-title">\${group.groupName}\${modelCount > 1 ? ' (' + modelCount + ')' : ''}</span>
-							<div class="card-controls">
-								<button class="order-btn" \${isFirst ? 'disabled' : ''} onclick="moveGroup('\${group.groupId}', 'up')" title="Move up">▲</button>
-								<button class="order-btn" \${isLast ? 'disabled' : ''} onclick="moveGroup('\${group.groupId}', 'down')" title="Move down">▼</button>
-								<label class="toggle-switch">
-									<input type="checkbox" \${isPinned ? 'checked' : ''} onchange="toggleGroup('\${group.groupId}')">
-									<span class="toggle-slider"></span>
-								</label>
-							</div>
-						</div>
-						
-						<div class="progress-ring-container">
-							<div class="progress-ring">
-								<svg width="140" height="140">
-									<circle class="progress-ring-bg" cx="70" cy="70" r="58"></circle>
-									<circle class="progress-ring-fill" cx="70" cy="70" r="58"
-										stroke="\${color}"
-										stroke-dasharray="\${circumference}"
-										stroke-dashoffset="\${offset}">
-									</circle>
-								</svg>
-								<div class="progress-ring-text">
-									<div class="progress-percentage" style="color: \${color}">\${pct.toFixed(1)}%</div>
-									<div class="progress-label">remaining</div>
+					const cardsHtml = groups.map((group, index) => {
+						const pct = group.remainingPercentage;
+						const color = getColor(pct);
+						const circumference = 2 * Math.PI * 58;
+						const offset = circumference - (pct / 100) * circumference;
+						const isPinned = pinnedGroups.includes(group.groupId);
+						const modelCount = group.models.length;
+						const isFirst = index === 0;
+						const isLast = index === groups.length - 1;
+
+						return \`
+							<div class="card" data-group-id="\${group.groupId}">
+								<div class="card-header">
+									<span class="card-title">\${group.groupName}\${modelCount > 1 ? ' (' + modelCount + ')' : ''}</span>
+									<div class="card-controls">
+										<button class="order-btn" \${isFirst ? 'disabled' : ''} onclick="moveGroup('\${group.groupId}', 'up')" title="Move up">▲</button>
+										<button class="order-btn" \${isLast ? 'disabled' : ''} onclick="moveGroup('\${group.groupId}', 'down')" title="Move down">▼</button>
+										<label class="toggle-container" title="Pin to top">
+											<input type="checkbox" class="toggle-chk" \${isPinned ? 'checked' : ''} onchange="toggleGroup('\${group.groupId}')">
+											<div class="toggle-track"></div>
+										</label>
+									</div>
+								</div>
+								
+								<div class="progress-ring-container">
+									<div class="progress-ring">
+										<svg width="140" height="140">
+											<circle class="progress-ring-bg" cx="70" cy="70" r="58"></circle>
+											<circle class="progress-ring-fill" cx="70" cy="70" r="58"
+												stroke="\${color}"
+												stroke-dasharray="\${circumference}"
+												stroke-dashoffset="\${offset}">
+											</circle>
+										</svg>
+										<div class="progress-ring-text">
+											<div class="progress-percentage" style="color: \${color}">\${pct.toFixed(1)}%</div>
+											<div class="progress-label">remaining</div>
+										</div>
+									</div>
+								</div>
+
+								\${modelCount > 1 ? \`
+									<div class="model-list">
+										\${group.models.map(m => \`
+											<div class="model-list-item">
+												<span style="color: var(--text-primary)">\${m.label}</span>
+												<span style="color: \${getColor(m.remainingPercentage)}">\${m.remainingPercentage.toFixed(0)}%</span>
+											</div>
+										\`).join('')}
+									</div>
+								\` : ''}
+
+								<div class="card-footer">
+									<span>Resets: \${group.timeUntilReset}</span>
+									<span class="status-badge \${getStatusClass(pct)}">\${getStatusText(pct)}</span>
 								</div>
 							</div>
-						</div>
+						\`;
+					}).join('');
 
-						\${modelCount > 1 ? \`
-							<div class="model-list">
-								\${group.models.map(m => \`
-									<div class="model-list-item">
-										<span>\${m.label}</span>
-										<span>\${m.remainingPercentage.toFixed(0)}%</span>
-									</div>
-								\`).join('')}
-							</div>
-						\` : ''}
+					content.innerHTML = '<div class="cards-grid">' + cardsHtml + '</div>';
+				}
 
-						<div class="card-footer">
-							<span>Resets: \${group.timeUntilReset}</span>
-							<span class="status-badge \${getStatusClass(pct)}">\${getStatusText(pct)}</span>
-						</div>
-					</div>
-				\`;
-			}).join('');
+				function toggleGroup(groupId) {
+					vscode.postMessage({ command: 'toggleGroup', groupId: groupId });
+				}
 
-			content.innerHTML = '<div class="cards-grid">' + cardsHtml + '</div>';
-		}
+				function refresh() {
+					vscode.postMessage({ command: 'refresh' });
+				}
 
-		function toggleGroup(groupId) {
-			vscode.postMessage({ command: 'toggleGroup', groupId: groupId });
-		}
+				function openSettings() {
+					vscode.postMessage({ command: 'openSettings' });
+				}
 
-		function refresh() {
-			vscode.postMessage({ command: 'refresh' });
-		}
+				function openMCP() {
+					vscode.postMessage({ command: 'openMCP' });
+				}
 
-        function openSettings() {
-            vscode.postMessage({ command: 'openSettings' });
-        }
+				function moveGroup(groupId, direction) {
+					vscode.postMessage({ command: 'moveGroup', groupId: groupId, direction: direction });
+				}
 
-        function openMCP() {
-            vscode.postMessage({ command: 'openMCP' });
-        }
-
-		function moveGroup(groupId, direction) {
-			vscode.postMessage({ command: 'moveGroup', groupId: groupId, direction: direction });
-		}
-
-		window.addEventListener('message', event => {
-			const message = event.data;
-			
-			switch (message.command) {
-				case 'updateData':
-					currentData = message.snapshot;
-					pinnedGroups = message.pinnedGroups || [];
-					renderCards(currentData.groups);
-					break;
-				case 'updatePinned':
-					pinnedGroups = message.pinnedGroups || [];
-					if (currentData) {
-						renderCards(currentData.groups);
+				window.addEventListener('message', event => {
+					const message = event.data;
+					
+					switch (message.command) {
+						case 'updateData':
+							currentData = message.snapshot;
+							pinnedGroups = message.pinnedGroups || [];
+							renderCards(currentData.groups);
+							break;
+						case 'updatePinned':
+							pinnedGroups = message.pinnedGroups || [];
+							if (currentData) {
+								renderCards(currentData.groups);
+							}
+							break;
+						case 'updateOrder':
+							if (currentData && message.groupOrder) {
+								// Sort current groups based on new order
+								currentData.groups.sort((a, b) => {
+									const aIndex = message.groupOrder.indexOf(a.groupId);
+									const bIndex = message.groupOrder.indexOf(b.groupId);
+									if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
+									if (aIndex >= 0) return -1;
+									if (bIndex >= 0) return 1;
+									return 0;
+								});
+								renderCards(currentData.groups);
+							}
+							break;
 					}
-					break;
-				case 'updateOrder':
-					if (currentData && message.groupOrder) {
-						// Sort current groups based on new order
-						currentData.groups.sort((a, b) => {
-							const aIndex = message.groupOrder.indexOf(a.groupId);
-							const bIndex = message.groupOrder.indexOf(b.groupId);
-							if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
-							if (aIndex >= 0) return -1;
-							if (bIndex >= 0) return 1;
-							return 0;
-						});
-						renderCards(currentData.groups);
-					}
-					break;
-			}
-		});
-	</script>
-</body>
-</html>`;
+				});
+			</script>
+		</body>
+		</html>`;
 	}
 
 	public dispose() {
