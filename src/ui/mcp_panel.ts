@@ -542,7 +542,7 @@ export class MCPPanel {
 		</head>
 		<body>
 			<div class="tabs">
-				<div class="tab" id="tab-installed" onclick="switchTab('installed')">Installed Apps</div>
+				<div class="tab active" id="tab-installed" onclick="switchTab('installed')">Installed Apps</div>
 				<div class="tab" id="tab-recommended" onclick="switchTab('recommended')">Recommended</div>
 				<div class="tab" id="tab-marketplace" onclick="switchTab('marketplace')">Marketplace Registry</div>
 			</div>
@@ -591,7 +591,6 @@ export class MCPPanel {
 				<div class="loading-text">PROCESSING</div>
 			</div>
 
-			<script>
 			<script>
 				const vscode = acquireVsCodeApi();
 				let registryData = [];
