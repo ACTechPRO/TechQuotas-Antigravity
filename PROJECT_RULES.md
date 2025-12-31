@@ -1,13 +1,13 @@
 # Project Rules: TechQuotas Antigravity
 
-> **Auto-Generated Facts**
-- **Name**: TechQuotas Antigravity
-- **Path**: D:\TechQuotas Antigravity
+## Metadata
 - **Type**: Node.js
-- **Stack**: Node.js, Javascript/Typescript
-- **Last Analysis**: 2025-12-30 23:46
+- **Path**: D:\TechQuotas Antigravity
 
-## Manual Rules
+## Core Directives
+1. Follow global rules in D:\TechAI\PROJECT_RULES.md.
+
 <!-- MANUAL -->
 Type your custom rules here. They will be preserved.
 <!-- /MANUAL -->
+
