@@ -664,6 +664,7 @@ export class MCPPanel {
 				let activeInstalledFilters = [];
 				let recommendedActiveTags = [];
 
+				function renderServers(servers) {
 					console.log('[MCP Debug] renderServers called, servers:', servers);
 					console.log('[MCP Debug] activeInstalledFilters:', activeInstalledFilters);
 					serversData = servers;
