@@ -136,8 +136,10 @@ export class MCPRecommender {
 
                 if (isRuntime) {
                     // STRICT CHECK: Only recommend if it is explicitly a tool FOR that language.
-                    const toolingKeywords = ['debug', 'linter', 'compiler', 'profiler', 'formatter', 'playground', 'introspector', 'language server', 'lsp', 'runtime', 'interpreter', 'cli'];
-                    const isTooling = toolingKeywords.some(k => lowerDesc.includes(k) || lowerName.includes(k));
+                    // STRICT CHECK: Only recommend if it is explicitly a tool FOR that language.
+                    // Use regex with word boundaries to prevent partial matches (e.g. 'cli' in 'client', 'climate')
+                    const toolingRegex = /\b(debug|debugger|debugging|linter|linters|compiler|compilers|profiler|profilers|formatter|formatters|playground|introspector|language server|lsp|runtime|interpreter|cli)\b/i;
+                    const isTooling = toolingRegex.test(lowerDesc) || toolingRegex.test(lowerName);
 
                     if (isTooling) {
                         score += techScore * 2.0;
@@ -166,8 +168,9 @@ export class MCPRecommender {
 
                 if (isRuntime) {
                     // Only count if it looks like the subject, not implementation
-                    const toolingKeywords = ['debug', 'linter', 'compiler', 'profiler', 'formatter', 'playground', 'introspector', 'language server', 'lsp', 'runtime', 'interpreter', 'cli'];
-                    if (toolingKeywords.some(k => lowerDesc.includes(k))) {
+                    // Use regex with word boundaries to prevent partial matches
+                    const toolingRegex = /\b(debug|debugger|debugging|linter|linters|compiler|compilers|profiler|profilers|formatter|formatters|playground|introspector|language server|lsp|runtime|interpreter|cli)\b/i;
+                    if (toolingRegex.test(lowerDesc)) {
                         score += techScore * 1.5;
                         reasons.push(`Tooling desc match: ${tech}`);
                     }
