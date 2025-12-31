@@ -411,6 +411,39 @@ export class MCPPanel {
 				.tag.local { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.2); }
 				.tag.cloud { background: rgba(167, 139, 250, 0.15); color: #c4b5fd; border-color: rgba(167, 139, 250, 0.2); }
 
+				/* Active Filter Chips */
+				.active-tags-container {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 8px;
+					margin-bottom: 20px;
+				}
+				
+				.tag-chip {
+					background: var(--accent-color);
+					color: white;
+					padding: 4px 12px;
+					border-radius: 16px;
+					font-size: 0.85em;
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					animation: fadeIn 0.2s;
+					border: 1px solid rgba(255,255,255,0.1);
+				}
+
+				.tag-chip-remove {
+					cursor: pointer;
+					font-weight: bold;
+					opacity: 0.7;
+					font-size: 1.1em;
+					line-height: 1;
+				}
+
+				.tag-chip-remove:hover {
+					opacity: 1;
+				}
+
 				.card-desc {
 					font-size: 0.9em;
 					line-height: 1.5;
@@ -579,8 +612,9 @@ export class MCPPanel {
 					<button class="btn secondary" onclick="sendMessage('refresh')" style="flex: 0 0 auto; width: auto;">Refresh Registry</button>
 				</div>
 				<div class="search-container">
-					<input type="text" class="search-box" id="search" placeholder="Search servers by name, description, or tag..." oninput="filterMarketplace()">
+					<input type="text" class="search-box" id="search" placeholder="Search servers by name or description..." oninput="filterMarketplace()">
 				</div>
+				<div id="active-tags" class="active-tags-container"></div>
 				<div id="registry-list">
 					<!-- Marketplace items injected here -->
 				</div>
@@ -596,6 +630,7 @@ export class MCPPanel {
 				let registryData = [];
 				let serversData = {};
 				let recommendedData = [];
+				let activeTags = [];
 
 				function switchTab(tabId) {
 					document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -704,11 +739,17 @@ export class MCPPanel {
 					let hasResults = false;
 
 					registryData.forEach(category => {
-						const items = category.items.filter(item => 
-							item.name.toLowerCase().includes(query) || 
-							item.description.toLowerCase().includes(query) ||
-							(item.tags && item.tags.some(t => t.toLowerCase().includes(query)))
-						);
+						const items = category.items.filter(item => {
+							// 1. Check text search
+							const matchesText = item.name.toLowerCase().includes(query) || 
+											  item.description.toLowerCase().includes(query);
+							
+							// 2. Check active tags (must have ALL active tags)
+							const itemTags = item.tags || [];
+							const matchesTags = activeTags.every(tag => itemTags.includes(tag));
+
+							return matchesText && matchesTags;
+						});
 
 						if (items.length > 0) {
 							hasResults = true;
@@ -724,7 +765,10 @@ export class MCPPanel {
 											let cls = 'tag';
 											if(t === 'Cloud') cls += ' cloud';
 											if(t === 'Local') cls += ' local';
-											return \`<span class="\${cls}">\${t}</span>\`;
+											// Check if active to style differently if needed in future
+											const isActive = activeTags.includes(t);
+											if (isActive) cls += ' active-tag-highlight'; // Optional: add styles for this if desired
+											return \`<span class="\${cls}" onclick="filterWithTag('\${t}')">\${t}</span>\`;
 										}).join('')}
 									</div>
 									<div class="card-desc" title="\${item.description}">
@@ -740,16 +784,42 @@ export class MCPPanel {
 						}
 					});
 
-					container.innerHTML = hasResults ? html : '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">No servers found matching your search.</p>';
+					container.innerHTML = hasResults ? html : '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">No servers found matching your criteria.</p>';
+				}
+
+				function renderActiveTags() {
+					const container = document.getElementById('active-tags');
+					if (activeTags.length === 0) {
+						container.innerHTML = '';
+						return;
+					}
+					
+					container.innerHTML = activeTags.map(tag => \`
+						<span class="tag-chip">
+							\${tag}
+							<span class="tag-chip-remove" onclick="filterWithTag('\${tag}')">×</span>
+						</span>
+					\`).join('') + (activeTags.length > 0 ? '<small style="color: var(--text-secondary); align-self: center; cursor: pointer; margin-left: 10px;" onclick="clearTags()">Clear All</small>' : '');
+				}
+
+				function clearTags() {
+					activeTags = [];
+					renderActiveTags();
+					filterMarketplace();
 				}
 
 				function filterWithTag(tag) {
 					// Switch to marketplace
 					switchTab('marketplace');
-					// Set search box
-					const searchBox = document.getElementById('search');
-					searchBox.value = tag;
-					// Trigger filter
+					
+					// Toggle tag
+					if (activeTags.includes(tag)) {
+						activeTags = activeTags.filter(t => t !== tag);
+					} else {
+						activeTags.push(tag);
+					}
+					
+					renderActiveTags();
 					filterMarketplace();
 				}
 
